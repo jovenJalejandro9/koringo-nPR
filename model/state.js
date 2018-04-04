@@ -1,5 +1,5 @@
-const util = require('../lib/utils')
 const error = require('../lib/error')
+const util = require('../lib/utils')
 const attrsState = ['prev_state_id', 'value', 'user_id', 'sheet_id']
 const state1 = {
   id: 1,
@@ -9,7 +9,9 @@ const state1 = {
     start_year: 1993
   },
   user_id: 3,
-  sheet_id: 2
+  remote_id: 1, 
+  remote_collection: 'sheet',
+  field_name: 'medical_history'
 }
 const state2 = {
   id: 2,
@@ -19,7 +21,9 @@ const state2 = {
     start_year: 1996
   },
   user_id: 3,
-  sheet_id: 2
+  remote_id: 1, 
+  remote_collection: 'sheet',
+  field_name: 'medical_history'
 }
 const state3 = {
   id: 3,
@@ -29,25 +33,28 @@ const state3 = {
     start_year: 1996
   },
   user_id: 3,
-  sheet_id: 2
+  remote_id: 1, 
+  remote_collection: 'sheet',
+  field_name: 'medical_history'
 }
 const state4 = {
   id: 6,
-  prev_state_id: 5,
+  prev_state_id: null,
   value: {
     sport: 'football',
     start_year: 1996
   },
   user_id: 3,
-  sheet_id: 2
+  remote_id: 2, 
+  remote_collection: 'sheet',
+  field_name: 'free_time'
 }
 
-let collection = [state1, state2, state3,state4]
+let collection = [state1, state2, state3, state4]
 let idState = collection.length
 
 module.exports = {
-  create: (initialBody) => {
-    const body = util.pick(initialBody, attrsState)
+  create: (body) => {
     // We check the compulsory fields
     if (body.hasOwnProperty('value') && body.hasOwnProperty('prev_state_id')
       && body.hasOwnProperty('user_id') && body.hasOwnProperty('sheet_id')) {
@@ -70,6 +77,7 @@ module.exports = {
     return Promise.reject(error.noInfoCreateState())
   },
   getAll: () => {
+    console.log(util)
     if (collection.length <= 0) {
       return Promise.reject(error.noStates())
     }

@@ -29,7 +29,7 @@ function isAuthenticated(req, res, next) {
   })
 }
 function hasPrivileges(req, res, next) {
-  if (req.headers.user) {
+  if (req.headers.user) {π
     const user = JSON.parse(req.headers.user)
     if (user.role === 'root' || user.role === 'admin' ) {
       next()

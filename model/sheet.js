@@ -1,6 +1,6 @@
 const util = require('../lib/utils')
 const error = require('../lib/error')
-const state = require('../model/state')
+const State = require('../model/state')
 const attrsSheet = ['name', 'first_surname', 'second_surname', 'birthday', 'id_number', 'zone', 'address', 'family_photos', 'house_photos', 'inCharge',
   'center', 'therapies', 'social_situation', 'medical_information', 'family_information', 'home_info', 'economic_information',
   'general_information', 'manifested_information', 'detected_information', 'warning_information', 'complete']
@@ -17,7 +17,6 @@ let idSheet = collection.length
 
 module.exports = {
   create: (initialBody) => {
-    let body = util.pick(initialBody, attrsSheet)
     if (body.hasOwnProperty('name') && body.hasOwnProperty('first_surname')
       && body.hasOwnProperty('address') && body.hasOwnProperty('zone')) {
       const sheet = Object.assign({}, body)
@@ -33,17 +32,25 @@ module.exports = {
     return Promise.reject(error.noInfoCreateSheet())
   },
   getAll: () => {
-    if (collection.length <= 0) {
-      return Promise.reject(error.noSheets())
-    }
-    return state.
-      getCollection()
-      .then((stateCollection) => {
+    return State
+      .getCollection()
+      .then((everyState) => {
         return util
-          .getStateCollection(collection, stateCollection)
-          .then((collectionStates) => Promise.resolve(collectionStates))
-      })  
-      .catch((error) => Promise.reject(error.noSheets()))
+          .getFristStates(collection[0], everyState, "sheet")
+          .then((sheetStates) => {
+            const lista = util
+              .listStatesFirst(sheetStates[0], [], everyState)
+              console.log(lista)
+          })
+      })
+    // return state.
+    //   getCollection()
+    //   .then((stateCollection) => {
+    //     return util
+    //       .getStatesSheet(collection, stateCollection)
+    //       .then((collectionStates) => Promise.resolve(collectionStates))
+    //   })  
+    //   .catch((error) => Promise.reject(error.noSheets()))
   },
   get: (id) => {
     const sheet = collection.find((ele) => {

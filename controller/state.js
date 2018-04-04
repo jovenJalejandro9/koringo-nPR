@@ -1,6 +1,5 @@
 const State = require('../model/state')
 
-/** create function to create State. */
 exports.create = (req, res) => {
   State
     .create(req.body)
@@ -8,7 +7,6 @@ exports.create = (req, res) => {
     .catch((err) => res.status(400).send(err))
 }
 
-/** get function to get every sheets */
 exports.getAll = (req, res) => {
   State
     .getAll()
@@ -16,7 +14,6 @@ exports.getAll = (req, res) => {
     .catch((err) => res.status(400).send(err))
 }
 
-/** get function to get State by id. */
 exports.get = (req, res) => {
   State
     .get(parseInt(req.params.id, 10))
