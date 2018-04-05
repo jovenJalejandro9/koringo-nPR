@@ -1,8 +1,5 @@
 /* eslint-env mocha */
-
-// During the test the env variable is set to test
 process.env.NODE_ENV = 'test'
-// Require the dev-dependencies
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../app')
@@ -10,13 +7,14 @@ const User = require('../model/user')
 const config = require('../config/config')
 const chaiThings = require('chai-things')
 const jwt = require('jsonwebtoken')
+
 chai.use(chaiHttp)
 chai.should()
 chai.use(chaiThings)
 
 describe('Checking the privileges', () => {
   beforeEach((done) => {
-    User.emptyUsers()
+    User.__emptyUsers__()
       .then(() => done())
       .catch(done)
   })
@@ -40,33 +38,34 @@ describe('Checking the privileges', () => {
       'AMI3'
     ]
   }
-  it('With a wrong token in the request', (done) =>{
+  it('should return a Incorrect token error when trying to access a private endpoint with an invalid token', (done) =>{
     chai.request(app)
       .get('/users')
       .set('authorization', 'Bearer u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .set('user', '{"role":"admin"}')
       .end((err, res)=>{
         res.should.have.status(401)
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('Incorrect token')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('Incorrect token')
         done()
       })
   })
-  it('Without token in the request', (done) =>{
+  it('should return a Incorrect token error when trying to access a private endpoint with no token', (done) =>{
     chai.request(app)
       .get('/users')
       .set('user', '{"role":"admin"}')
       .end((err, res)=>{
         res.should.have.status(401)
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('Incorrect token')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('Incorrect token')
         done()
       })
   })
-  it('Without root or admin user in the request', (done) =>{
+  it('should return a Incorrect token error when trying to access a private endpoint with a normal user token', (done) =>{
     User
       .create(user)
-      .then(() => User.getCollection())
       .then((collection) => {
         const idUser = collection[collection.length - 1].id
         const token = jwt.sign({id: idUser}, config.secretKey)
@@ -75,8 +74,43 @@ describe('Checking the privileges', () => {
           .set('authorization', 'Bearer ' + token)
           .end((err, res)=>{
             res.should.have.status(401)
-            res.body.should.have.property('errors')
-            res.body.errors.should.have.property('message').eql('The user do not have the privileges')
+            res.body.should.have.property('code')
+            res.body.should.have.property('message')
+            res.body.should.have.property('message').eql('Not Authorized')
+            done()
+          })
+      })
+      .catch(done)
+  })
+  it('should return a 201 status value when trying to access a private endpoint with a root user token (Whe call POST USER )', (done) =>{
+    User
+      .__getCollection__()
+      .then((collection) => {
+        const idUser = collection[0].id
+        const token = jwt.sign({id: idUser}, config.secretKey)
+        chai.request(app)
+          .post('/users/')
+          .set('authorization', 'Bearer ' + token)
+          .send(user)
+          .end((err, res)=>{
+            res.should.have.status(201)
+            done()
+          })
+      })
+      .catch(done)
+  })
+  it('should return a 201 status value when trying to access a private endpoint with a root user token (Whe call POST USER )', (done) =>{
+    User
+      .__getCollection__()
+      .then((collection) => {
+        const idUser = collection[0].id
+        const token = jwt.sign({id: idUser}, config.secretKey)
+        chai.request(app)
+          .post('/users/')
+          .set('authorization', 'Bearer ' + token)
+          .send(user)
+          .end((err, res)=>{
+            res.should.have.status(201)
             done()
           })
       })

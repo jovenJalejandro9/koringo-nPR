@@ -15,7 +15,7 @@ router.use(cookieParser())
 require('./routes/index')(router)
 
 // catch 404 and forward to error handler
-router.use(function use(req, res, next) {
+router.use((req, res, next) => {
   const err = new Error('Not Found')
   err.status = 404
   next(err)
@@ -40,6 +40,5 @@ router.use(function use(err, req, res) {
     error: {}
   })
 })
-
 app.listen(3000)
 module.exports = app

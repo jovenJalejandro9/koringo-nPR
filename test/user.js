@@ -1,5 +1,4 @@
 /* eslint-env mocha */
-
 // During the test the env variable is set to test
 process.env.NODE_ENV = 'test'
 // Require the dev-dependencies
@@ -8,6 +7,7 @@ const chaiHttp = require('chai-http')
 const app = require('../app')
 const User = require('../model/user')
 const chaiThings = require('chai-things')
+
 chai.use(chaiHttp)
 chai.should()
 chai.use(chaiThings)
@@ -21,11 +21,11 @@ chai.use(chaiThings)
 */
 describe('/POST user', () => {
   beforeEach((done) => {
-    User.emptyUsers()
+    User.__emptyUsers__()
       .then(() => done())
       .catch(done)
   })
-  it('Without the compulsory fields', (done) =>{
+  it('should return a Incorrect token error when trying to create an user without the compulsory fields', (done) =>{
     const user = {
       name: 'Esteban',
       password: 'kilombo',
@@ -39,14 +39,16 @@ describe('/POST user', () => {
       .end((err, res)=>{
         res.should.have.status(400)
         res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('A new user need at least name, first_surname, second_surname, nickname, email, birthday, studies,proffessions and prev_volunteering')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('A new user need at least name, first_surname, second_surname, nickname, email, birthday, studies,proffessions and prev_volunteering')
         done()
       })
   })
-  it('With a incorrect role. It should normal or admin. By default is normal', (done) =>{
+  it('should return a Incorrect token error when trying to create an user with a role differente than normal or admin', (done) =>{
     const user = {
       name: 'Sonia',
+      password: 'kilombo',
       first_surname: 'Lolo',
       second_surname: 'Aria',
       nickname: 'Sonya',
@@ -72,12 +74,13 @@ describe('/POST user', () => {
       .end((err, res)=>{
         res.should.have.status(400)
         res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('Incorrect Role')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('Incorrect Role')
         done()
       })
   })
-  it('With the minimun compulsory fileds. We do not fill in the role field. By default is "normal"', (done) =>{
+  it('should return a json collection when trying to create an user with at least the compulsory fields', (done) =>{
     const user = {
       name: 'Sonia',
       first_surname: 'Lolo',
@@ -116,7 +119,7 @@ describe('/POST user', () => {
 */
 describe('/GET  user', () => {
   beforeEach((done) => {
-    User.emptyUsers()
+    User.__emptyUsers__()
       .then(() => done())
       .catch(done)
   })
@@ -158,7 +161,7 @@ describe('/GET  user', () => {
       'AMI3'
     ]
   }
-  it('just with the root in the DB. We can do this action with a normal user', (done) => {
+  it('should return a json collection when trying to get the users just with the root on the DB', (done) => {
     chai.request(app)
       .get('/users')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
@@ -170,7 +173,7 @@ describe('/GET  user', () => {
       })
   })
 
-  it('with more users in the db', (done) =>{
+  it('should return a json collection when trying to get the users just with more on the DB', (done) =>{
     User
       .create(user)
       .then(() => {
@@ -183,12 +186,11 @@ describe('/GET  user', () => {
             res.body.length.should.be.eq(2)
             done()
           })
-      }
-      )
+      })
       .catch(done)
 
   })
-  it('with two users in the db and aplying non-existent filter. Ej: color=red', (done) =>{
+  it('should return a json collection when trying to get the users with a invented filter Ej: color=red', (done) =>{
     User
       .create(user)
       .then(() =>  {
@@ -207,7 +209,7 @@ describe('/GET  user', () => {
       .catch(done)
 
   })
-  it('with two users in the db and aplying an existant filter. Ej: professions=["teacher"]', (done) =>{
+  it('should return a json collection when trying to get the users just with an existante filter. Ej: professions=["teacher"]', (done) =>{
     User
       .create(user)
       .then(() =>  {
@@ -225,7 +227,7 @@ describe('/GET  user', () => {
       })
       .catch(done)
   })
-  it('with two users in the db and aplying an existant filter with some values. Ej: professions=["teacher","chef"]', (done) =>{
+  it('should return a json collection when trying to get the users just with an existante filter with some values. Ej: professions=["teacher","chef"]', (done) =>{
     User
       .create(user)
       .then(() =>
@@ -247,7 +249,7 @@ describe('/GET  user', () => {
       )
       .catch(done)
   })
-  it('with two users in the db and aplying differents filters. Ej: professions=["teacher"]&studies=["chef"]', (done) =>{
+  it('should return a json collection when trying to get the users with differents correct filters. Ej: professions=["teacher"]&studies=["chef"]', (done) =>{
     User
       .create(user)
       .then(() =>
@@ -276,24 +278,22 @@ describe('/GET  user', () => {
 */
 describe('/GET/:id user', () => {
   beforeEach((done) => {
-    User.emptyUsers()
+    User.__emptyUsers__()
       .then(() => done())
       .catch(done)
   })
-  it('with a wrong id. We can do this action with a normal user', (done) =>{
+  it('should return a json collection when trying to get the users with wrong idUser', (done) =>{
     chai.request(app)
       .get('/users/22')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send()
       .end((err, res)=>{
-        res.should.have.status(400)
+        res.should.have.status(200)
         res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('The user is not in the DB')
         done()
       })
   })
-  it('with a correct id', (done) =>{
+  it('should return a json collection when trying to get the users with correct idUser', (done) =>{
     chai.request(app)
       .get('/users/1')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
@@ -310,7 +310,7 @@ describe('/GET/:id user', () => {
 */
 describe('/DELETE  user', () => {
   beforeEach((done) => {
-    User.emptyUsers()
+    User.__emptyUsers__()
       .then(() => done())
       .catch(done)
   })
@@ -334,23 +334,20 @@ describe('/DELETE  user', () => {
       'AMI3'
     ]
   }
-  it('With a bad id ', (done) =>{
+  it('should return a json collection when trying to get the users just with wrong idUser', (done) =>{
     chai.request(app)
       .delete('/users/22')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send()
       .end((err, res)=>{
-        res.should.have.status(400)
-        res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('The user is not in the DB')
+        res.should.have.status(200)
+        res.body.should.be.a('array')
         done()
       })
   })
-  it('with a correct id', (done) =>{
+  it('should return a json collection when trying to get the users just with correct idUser', (done) =>{
     User
       .create(user)
-      .then(() => User.getCollection())
       .then((collection) =>  {
         const deleteId = collection[collection.length - 1].id
         chai.request(app)
@@ -372,7 +369,7 @@ describe('/DELETE  user', () => {
 */
 describe('/PATCH/:id user', () => {
   beforeEach(function setUp(done) {
-    User.emptyUsers()
+    User.__emptyUsers__()
       .then(() => done())
       .catch(done)
   })
@@ -396,7 +393,7 @@ describe('/PATCH/:id user', () => {
       'AMI3'
     ]
   }
-  it('with a wrong id', (done) => {
+  it('should return a Incorrect token error when trying to patch the users with a wrong idUser', (done) => {
     chai.request(app)
       .patch('/users/22')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
@@ -404,12 +401,13 @@ describe('/PATCH/:id user', () => {
       .end((err, res)=>{
         res.should.have.status(400)
         res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('The field does not exist')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('The field does not exist')
         done()
       })
   })
-  it('Updating with a incorrect role. It should normal or admin', (done) =>{
+  it('should return a Incorrect token error when trying to patch the users with a wrong role', (done) =>{
     const change = {
       role: 'almirant'
     }
@@ -420,19 +418,19 @@ describe('/PATCH/:id user', () => {
       .end((err, res)=>{
         res.should.have.status(400)
         res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('Incorrect Role')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('Incorrect Role')
         done()
       })
   })
-  it('With a correct id and updating a current value', (done) =>{
+  it('should return a json collection when trying to patch a user with everything OK', (done) =>{
 
     const change = {
       name: 'Roberto'
     }
     User
       .create(user)
-      .then(() => User.getCollection())
       .then((collection) =>  {
         const updateId = collection[collection.length - 1].id
         chai.request(app)

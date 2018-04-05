@@ -8,33 +8,33 @@ const User = require('../model/user')
 
 chai.use(chaiHttp)
 chai.should()
-
 /*
 * Test the Session
 */
 describe('/POST session', () => {
   beforeEach((done) => {
-    User.emptyUsers()
+    User.__emptyUsers__()
       .then(() => done())
-      .catch(done)
   })
-  it('using wrong name and password', (done) =>{
+
+  it('should return a Incorrect token error when trying to login with wrong name and password', (done) =>{
     const login = {
       name: 'Peter',
       password: 'batata'
     }
     chai.request(app)
       .post('/session')
-   	.send(login)
+   	  .send(login)
       .end((err, res)=>{
         res.should.have.status(401)
         res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('The user is not in the DB')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('This user does not exist')
         done()
       })
   })
-  it('Using correct name but wrong password', (done) =>{
+  it('should return a Incorrect token error when trying to init session with a wrong password', (done) =>{
     const login = {
       name: 'root',
       password: 'batata'
@@ -44,13 +44,14 @@ describe('/POST session', () => {
       .send(login)
       .end((err, res)=>{
         res.should.have.status(401)
-        res.body.should.be.a('object')
-        res.body.should.have.property('errors')
-        res.body.errors.should.have.property('message').eql('Incorrect password')
+        res.body.should.have.property('code')
+        res.body.should.have.property('message')
+        res.body.should.have.property('message').eql('Incorrect password')
         done()
       })
   })
-  it('Using root name and the root password', (done) => {
+  it('should return a correct token error when trying to init session with a correct root user', (done) => {
+
     const login = {
       name: 'root',
       password: 'kilombo'
@@ -65,14 +66,14 @@ describe('/POST session', () => {
         done()
       })
   })
-  it('Using normal user and user password should return status 200 and a json with the token', (done) =>{
+  it('should return a correct Token when trying to login with a normal user', (done) =>{
     const user = {
       name: 'Sonia',
       first_surname: 'Lolo',
       second_surname: 'Aria',
       nickname: 'Sonya',
       email: 'sonialolo@gmail.com:',
-      password: 'kilombo',
+      password: '69016ee62c6fd731218a3743a585dbfc',
       birthday: '1984-01-12',
       studies: [
         'journalism',
@@ -86,20 +87,22 @@ describe('/POST session', () => {
         'AMI3'
       ]
     }
-    // We create a new normal user
-    User.create(user)
     const login = {
       name: 'Sonia',
       password: 'kilombo'
     }
-    chai.request(app)
-      .post('/session')
-      .send(login)
-      .end((err, res)=>{
-        res.should.have.status(200)
-        res.body.should.be.a('object')
-        res.body.should.have.property('token')
-        done()
+    // We create a new normal user
+    User.create(user)
+      .then(() =>{
+        chai.request(app)
+          .post('/session')
+          .send(login)
+          .end((err, res)=>{
+            res.should.have.status(200)
+            res.body.should.be.a('object')
+            res.body.should.have.property('token')
+            done()
+          })
       })
   })
 })
