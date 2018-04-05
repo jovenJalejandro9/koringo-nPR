@@ -9,10 +9,16 @@ let collection = [{
       "name": "Jose",
       "first_surname": "Perez",
       "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo", 
-      "home_info":1, 
-      "inCharge": null 
-}]
+      "zone": "Chiclayo"
+  },
+{
+      "id": 2,
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+  }
+  ]
 let idSheet = collection.length
 
 module.exports = {
@@ -32,39 +38,38 @@ module.exports = {
     return Promise.reject(error.noInfoCreateSheet())
   },
   getAll: () => {
-    return State
-      .getCollection()
+    return State.getCollection()
+    //extracting everyState
       .then((everyState) => {
-        return util
-          .getFristStates(collection[0], everyState, "sheet")
-          .then((sheetStates) => {
-            const lista = util
-              .listStatesFirst(sheetStates[0], [], everyState)
-              console.log(lista)
+        const promiseEveryState = [];
+        for (let i = 0; i < collection.length; i++) {
+            promiseEveryState.push(util.getEveryStateSheet(collection[i], everyState, "sheet"));
+        }
+        return Promise.all(promiseEveryState)
+          .then((collSheetsEveryStates) => {
+            return util.getStatesSheet(collSheetsEveryStates)
           })
-      })
-    // return state.
-    //   getCollection()
-    //   .then((stateCollection) => {
-    //     return util
-    //       .getStatesSheet(collection, stateCollection)
-    //       .then((collectionStates) => Promise.resolve(collectionStates))
-    //   })  
-    //   .catch((error) => Promise.reject(error.noSheets()))
+      })   
   },
   get: (id) => {
     const sheet = collection.find((ele) => {
       return ele.id === id
     })
-    if (sheet) {
-      return Promise.resolve(sheet)
-    }
-    return Promise.reject(error.noSheetId())
+    return State.getCollection()
+    //extracting everyState
+      .then((everyState) => {
+        return util.getEveryStateSheet(sheet, everyState, "sheet")
+          .then((promiseEveryState) => {
+            const auxColl = []
+            auxColl.push(promiseEveryState)
+            return util.getStatesSheet(auxColl)
+              .then((collGetAllSheet) => collGetAllSheet[0])             
+          }) 
+      })  
   },
   updateById: (id, body) => {
-    const auxCollection = util.replace(collection, parseInt(id, 10), body)
+    return util.replace(collection, parseInt(id, 10), body)
       .then((newcollection) => collection = newcollection)
-    return auxCollection
   },
   removeById: (id) => {
     let idFound = false
