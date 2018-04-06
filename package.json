@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "./node_modules/.bin/webpack --watch",
-    "test": "mocha --timeout 10000",
+    "test": "mocha --timeout 10000 --exit",
     "server": "./node_modules/.bin/webpack-dev-server",
     "eslint": "./node_modules/.bin/eslint"
   },

@@ -9,11 +9,8 @@ let collection = [{
 let idVisit = collection.length
 
 module.exports = {
-  create: (initialBody) => {
-    let body = util.pick(initialBody, attrsVisit)
+  create: (body) => {
     const visit = Object.assign({}, body)
-    console.log("holaaa")
-    // Creating the new visit
     idVisit ++
     visit.id = idVisit
     visit.timestamp = util.getDate()
@@ -22,19 +19,14 @@ module.exports = {
     return Promise.resolve(collection)
   },
   getAll: () => {
-    if (collection.length <= 0) {
-      return Promise.reject(error.noVisits())
-    }
     return Promise.resolve(collection)
   },
   get: (id) => {
     const visit = collection.find((ele) => {
       return ele.id === id
     })
-    if (visit) {
-      return Promise.resolve(visit)
-    }
-    return Promise.reject(error.noVisitId())
+    if (visit === undefined) return Promise.resolve({})
+    return Promise.resolve(visit)
   },
   updateById: (id, body) => {
     const auxCollection = util.replace(collection, parseInt(id, 10), body)
@@ -42,17 +34,10 @@ module.exports = {
     return auxCollection
   },
   removeById: (id) => {
-    let idFound = false
     collection = collection.filter((ele) => {
-      if (ele.id === id) {
-        idFound = true
-      }
       return ele.id !== id
     })
-    if (idFound) {
-      return Promise.resolve(collection)
-    }
-    return Promise.reject(error.noVisitId())
+    return Promise.resolve(collection)
   },
   findByAttr: (attr, value) => {
     return util.findByAttr(collection, attr, value)

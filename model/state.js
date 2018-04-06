@@ -45,7 +45,7 @@ const state4 = {
     start_year: 1996
   },
   user_id: 3,
-  remote_id: 2, 
+  remote_id: 3, 
   remote_collection: 'sheet',
   field_name: 'free_time'
 }
@@ -55,47 +55,36 @@ let idState = collection.length
 
 module.exports = {
   create: (body) => {
-    // We check the compulsory fields
-    if (body.hasOwnProperty('value') && body.hasOwnProperty('prev_state_id')
-      && body.hasOwnProperty('user_id') && body.hasOwnProperty('sheet_id')) {
-      const prevIdState = collection.find((ele) => {
-        return ele.id === body.prev_state_id
-      })
-      // We check if the previous state extists
-      if ((prevIdState === undefined) && (body.prev_state_id !== null)) {
-        return Promise.reject(error.noPrevState())
-      }
-      const state = Object.assign({}, body)
-      idState ++
-      state.id = idState
-      state.timestamp = util.getDate()
-      collection.push(state)
-      // We return a list of the link states
-      const listStates = util.listStatesLast(collection[collection.length - 1], [], collection)
-      return Promise.resolve(listStates)
-    }
-    return Promise.reject(error.noInfoCreateState())
+    const state = Object.assign({}, body)
+    state.id = ++idState
+    state.timestamp = util.getDate()
+    collection.push(state)
+    return Promise.resolve(collection)
   },
   getAll: () => {
-    console.log(util)
-    if (collection.length <= 0) {
-      return Promise.reject(error.noStates())
-    }
     return Promise.resolve(collection)
   },
   get: (id) => {
     const state = collection.find((ele) => {
       return ele.id === id
     })
-    if (state === undefined) {
-      return Promise.reject(error.noState())
-    }
+    if (state === undefined) return Promise.resolve({})
     return Promise.resolve(state)
   },
-  findByAttr: (attr, value) => {
-    return util.findByAttr(collection, attr, value)
-  }, 
-  getCollection: () => {
+  __getCollection__: () => {
     return Promise.resolve(collection)
-  }
+  }, 
+  __checkPrevState__: (prevId) => {
+    for(state of collection){
+      if(state.prev_state_id === prevId) return Promise.reject('prevIdexist') 
+    } 
+    
+    const prevState = collection.find((state) => {
+      return state.id === prevId
+    })
+    if(prevState !== undefined || prevId === null) {
+      return Promise.resolve(true)
+    }
+    return Promise.reject('notExistantPrevId')
+  } 
 }

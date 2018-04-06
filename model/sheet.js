@@ -22,29 +22,36 @@ let collection = [{
 let idSheet = collection.length
 
 module.exports = {
-  create: (initialBody) => {
-    if (body.hasOwnProperty('name') && body.hasOwnProperty('first_surname')
-      && body.hasOwnProperty('address') && body.hasOwnProperty('zone')) {
+  create: (body) => {
       const sheet = Object.assign({}, body)
-      // Creating the new sheet
       idSheet ++
       sheet.id = idSheet
       sheet.complete = false 
       sheet.timestamp = util.getDate()
       collection.push(util.nullComplete(sheet, attrsSheet))
-      let statesCollection = Object.assign({}, collection)
-      return Promise.resolve(statesCollection)
-    }
+//Como llamar desde aqui a getAll()?
+      return State.__getCollection__()
+        .then((everyState) => {
+          const promiseEveryState = [];
+          for (let i = 0; i < collection.length; i++) {
+              promiseEveryState.push(util.getEveryStateSheet(collection[i], everyState, "sheet"));
+          }
+          return Promise.all(promiseEveryState)
+            .then((collSheetsEveryStates) => {
+              return util.getStatesSheet(collSheetsEveryStates)
+            })
+        })   
+    
     return Promise.reject(error.noInfoCreateSheet())
   },
   getAll: () => {
-    return State.getCollection()
-    //extracting everyState
+    return State.__getCollection__()
       .then((everyState) => {
         const promiseEveryState = [];
         for (let i = 0; i < collection.length; i++) {
             promiseEveryState.push(util.getEveryStateSheet(collection[i], everyState, "sheet"));
         }
+        console.log(collection)
         return Promise.all(promiseEveryState)
           .then((collSheetsEveryStates) => {
             return util.getStatesSheet(collSheetsEveryStates)
@@ -56,7 +63,6 @@ module.exports = {
       return ele.id === id
     })
     return State.getCollection()
-    //extracting everyState
       .then((everyState) => {
         return util.getEveryStateSheet(sheet, everyState, "sheet")
           .then((promiseEveryState) => {
@@ -72,26 +78,20 @@ module.exports = {
       .then((newcollection) => collection = newcollection)
   },
   removeById: (id) => {
-    let idFound = false
+    console.log(collection)
     collection = collection.filter((ele) => {
-      if (ele.id === id) {
-        idFound = true
-      }
       return ele.id !== id
     })
-    if (idFound) {
-      return Promise.resolve(collection)
-    }
-    return Promise.reject(error.noSheetId())
+    return Promise.resolve(collection)  
   },
   findByAttr: (attr, value) => {
     return util.findByAttr(collection, attr, value)
   },
-  emptySheets: () => {
+  __emptySheets__: () => {
     collection = []
     return Promise.resolve(collection)
   },
-  getSheets: () => {
+  __getSheets__: () => {
     return Promise.resolve(collection)
   }
 }

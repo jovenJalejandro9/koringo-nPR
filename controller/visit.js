@@ -1,14 +1,16 @@
 const Visit = require('../model/visit')
+const util = require('../lib/utils')
 
-/** create function to create Visit. */
+const attrsVisit = ['sheetId', 'user_id', 'date', 'state']
+
 exports.create = (req, res) => {
+  const body = util.pick(req.body, attrsVisit.slice(0, -1))
   Visit
-    .create(req.body)
+    .create(body)
     .then((result) => res.status(201).json(result))
     .catch((err) => res.status(400).send(err))
 }
 
-/** get function to get every visits */
 exports.getAll =(req, res) => {
   Visit
     .getAll()
@@ -16,7 +18,6 @@ exports.getAll =(req, res) => {
     .catch((err) => res.status(400).send(err))
 }
 
-/** get function to get Visit by id. */
 exports.get = (req, res) => {
   Visit
     .get(parseInt(req.params.id, 10))
@@ -24,15 +25,14 @@ exports.get = (req, res) => {
     .catch((err) => res.status(400).send(err))
 }
 
-/** updateVisit function to get Visit by id. */
 exports.update = (req, res) => {
+  const visitData = util.pick(req.body, attrsVisit)
   Visit
-    .updateById(parseInt(req.params.id, 10), req.body)
+    .updateById(parseInt(req.params.id, 10), visitData)
     .then((result) => res.status(200).json(result))
     .catch((err) => res.status(400).send(err))
 }
 
-/** removeVisit function to get Visit by id. */
 exports.delete = (req, res) => {
   Visit
     .removeById(parseInt(req.params.id, 10))

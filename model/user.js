@@ -20,22 +20,18 @@ let idUser = collection.length
 
 module.exports = {
   create: (body) => {
-
-    if (util.checkFields(attrsUser.slice(0, -1), body)) {
-      const user = Object.assign({}, body)
-      if (!user.hasOwnProperty('role')) {
-        user.role = 'normal'
-      }
-      if (user.role !== 'normal' && user.role !== 'admin') {
-        return Promise.reject('incorrectRole')
-      }
-      idUser ++
-      user.id = idUser
-      user.timestamp = util.getDate()
-      collection.push(util.nullComplete(user, attrsUser))
-      return Promise.resolve(collection)
+    const user = Object.assign({}, body)
+    if (!user.hasOwnProperty('role')) {
+      user.role = 'normal'
     }
-    return Promise.reject('noInfoCreateUser')
+    if (user.role !== 'normal' && user.role !== 'admin') {
+      return Promise.reject('incorrectRole')
+    }
+    idUser ++
+    user.id = idUser
+    user.timestamp = util.getDate()
+    collection.push(util.nullComplete(user, attrsUser))
+    return Promise.resolve(collection)
   },
   getAll: (filters) => {
     if (Object.keys(filters).length > 0) {
