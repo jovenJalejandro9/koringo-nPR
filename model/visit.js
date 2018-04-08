@@ -42,11 +42,11 @@ module.exports = {
   findByAttr: (attr, value) => {
     return util.findByAttr(collection, attr, value)
   },
-  emptyVisits: () => {
+  __emptyCollection__: () => {
     collection = []
     return Promise.resolve(collection)
   },
-  getVisits: () => {
+  __getVisits__: () => {
     return Promise.resolve(collection)
   }
 }
