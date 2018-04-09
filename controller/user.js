@@ -10,13 +10,6 @@ const attrParams = ['professions', 'studies']
 exports.create = (req, res) => {
   const userData = util.pick(req.body, attrsUser)
   userData.password = crypto.createHash('md5').update(req.body.password).digest('hex')
-  if (req.body.hasOwnProperty('role') && (req.body.role !== 'normal' || req.body.role !== 'admin')) {
-    return res.status(400).send(error['incorrectRole']())
-  }
-  if (!util.checkFields(attrsUser.slice(0, -1), userData)) {
-    return res.status(400).send(error['noInfoCreateUser']())
-  }
-
   User
     .create(userData)
     .then((result) => res.status(201).json(result))
@@ -40,9 +33,6 @@ exports.get = (req, res) => {
 
 exports.update = (req, res) => {
   const userData = util.pick(req.body, attrsUser)
-  if (req.body.hasOwnProperty('role') && req.body.role !== 'normal' && req.body.role !== 'admin') {
-    return res.status(400).send(error['incorrectRole']())
-  }
   User
     .updateById(parseInt(req.params.id, 10), userData)
     .then((result) => res.status(200).json(result))

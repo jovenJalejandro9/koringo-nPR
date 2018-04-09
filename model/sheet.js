@@ -1,24 +1,23 @@
 const util = require('../lib/utils')
-const error = require('../lib/error')
 const State = require('../model/state')
 const attrsSheet = ['name', 'first_surname', 'second_surname', 'birthday', 'id_number', 'zone', 'address', 'family_photos', 'house_photos', 'inCharge',
   'center', 'therapies', 'social_situation', 'medical_information', 'family_information', 'home_info', 'economic_information',
   'general_information', 'manifested_information', 'detected_information', 'warning_information', 'complete']
 let collection = [
-//   {
-//       "id": 1,
-//       "name": "Jose",
-//       "first_surname": "Perez",
-//       "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-//       "zone": "Chiclayo"
-//   },
-// {
-//       "id": 2,
-//       "name": "Amparo",
-//       "first_surname": "Ribola",
-//       "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-//       "zone": "Chiclayo"
-//   }
+  {
+      "id": 1,
+      "name": "Jose",
+      "first_surname": "Perez",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+  },
+{
+      "id": 2,
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+  }
   ]
 let idSheet = collection.length
 

@@ -20,6 +20,12 @@ let idUser = collection.length
 
 module.exports = {
   create: (body) => {
+    if (body.hasOwnProperty('role') && (body.role !== 'normal' || body.role !== 'admin')) {
+      return Promise.reject('incorrectRole')
+    }
+    if (!util.checkFields(attrsUser.slice(0, -1), body)) {
+      return Promise.reject('noInfoCreateUser')
+    }
     const user = Object.assign({}, body)
     if (!user.hasOwnProperty('role')) {
       user.role = 'normal'
@@ -51,11 +57,14 @@ module.exports = {
   },
   get: (id) => {
     const user = collection.find(ele => ele.id === id)
-
     if (user === undefined) return Promise.resolve({})
     return Promise.resolve(user)
   },
   updateById: (id, body) => {
+    if (body.hasOwnProperty('role') && body.role !== 'normal' && body.role !== 'admin') {
+      return Promise.reject('incorrectRole')
+    }
+    console.log("dentro de model update")
     return util
       .replace(collection, id, body)
       .then((newcollection) => {

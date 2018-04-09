@@ -74,17 +74,23 @@ module.exports = {
   __getCollection__: () => {
     return Promise.resolve(collection)
   }, 
-  __checkPrevState__: (prevId) => {
+  __checkPrevState__: (stateData) => {
     for(state of collection){
-      if(state.prev_state_id === prevId) return Promise.reject('prevIdexist') 
-    } 
-    
+      if(state.prev_state_id === stateData.prev_state_id && stateData.prev_state_id !== null) return Promise.reject('prevIdexist')
+      if(state.prev_state_id === stateData.prev_state_id && stateData.prev_state_id === null && state.remote_id === stateData.remote_id
+        && state.remote_collection === stateData.remote_collection && state.field_name === stateData.field_name ) return Promise.reject('existentFieldName')
+    }
+
     const prevState = collection.find((state) => {
-      return state.id === prevId
+      return state.id === stateData.prev_state_id
     })
-    if(prevState !== undefined || prevId === null) {
+    if(prevState !== undefined || stateData.prev_state_id === null) {
       return Promise.resolve(true)
     }
     return Promise.reject('notExistantPrevId')
-  } 
+  }, 
+  __emptyCollection__: () => {
+    collection = []
+    return Promise.resolve(collection)
+  },
 }
