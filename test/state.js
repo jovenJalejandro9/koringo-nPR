@@ -59,7 +59,7 @@ describe('/POST state', () => {
         done()
       })
   })
-  it('should return a Incorrect token error when trying to create a state with a wrong a non-existent prevId', (done) => {
+  it('should return a Incorrect token error when trying to create a state with a non-existent prevId', (done) => {
     const state = {
       "prev_state_id": 323,
       "value": {
@@ -81,7 +81,7 @@ describe('/POST state', () => {
         res.body.should.be.a('object')
         res.body.should.have.property('code')
         res.body.should.have.property('message')
-        res.body.should.have.property('message').eql('The previous id should be null or an available idState')
+        res.body.should.have.property('message').eql('The previous id should be null or a available idState')
         done()
       })
   })
@@ -144,140 +144,57 @@ describe('/POST state', () => {
             })
       })  
   })
-  //   it('should return a json collection when trying to create an state with every fields', (done) =>{
-  //     const sheet = {
-  // 			"id": 2,
-  // 			"name": "Amparo",
-  // 			"first_surname": "Ribola",
-  // 			"address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-  // 			"zone": "Chiclayo"
-  //     }
-  //     Sheet
-  // 			.create(sheet)
-  // 			.then((sheets) => {
-  // 			const state = {
-  // 					user_id: 1,
-  // 					date: 'Wed Feb 28'
-  // 			}
-  // 			state.sheetId = sheets[0].id
-  // 				chai.request(app)
-  // 				.post('/states')
-  // 				.set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-  // 				.send(state)
-  // 				.end((err, res)=>{
-  // 						res.should.have.status(201)
-  // 						res.body.should.be.a('array')
-  // 						res.body.length.should.be.eq(1)
-  // 						done()
-  // 				})
-
-  // 			})
-  //   })
-  // })
-  // /*
-  // * GET state
-  // */
-  // describe('/GET  state', () => {
-  // 	beforeEach((done) => {
-  // 		State.__emptyCollection__()
-  // 		  .then(() => {
-  // 					Sheet.__emptyCollection__()
-  // 					.then(() => done())
-  // 				})
-  // 		  .catch(done)
-  // 		})
-  //   const state = {
-  //     id: 1,
-  //     prev_state_id: null,
-  //     value: {
-  //       diagnose: 'Autism',
-  //       start_year: 1993
-  //     },
-  //     user_id: 3,
-  //     remote_id: 1, 
-  //     remote_collection: 'sheet',
-  //     field_name: 'medical_history'
-  //   }
-  //   it('should return a empty json collection when trying to get the states when the db is empty', (done) => {
-  //     chai.request(app)
-  //       .get('/states')
-  //       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-  //       .end((err, res)=>{
-  //         res.should.have.status(200)
-  //         res.body.should.be.a('array')
-  //         res.body.length.should.be.eq(0)
-  //         done()
-  //       })
-  //   })
-
-  //   it('should return a json collection when trying to get the states with one state on the db', (done) =>{
-  //     State
-  //       .create(state)
-  //       .then(() => {
-  //         chai.request(app)
-  //           .get('/states')
-  //           .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-  //           .end((err, res) => {
-  //             res.should.have.status(200)
-  //             res.body.should.be.a('array')
-  //             res.body.length.should.be.eq(1)
-  //             done()
-  //           })
-  //       })
-  //       .catch(done)
-
-  // 	})
 })
-/*
-* GET state/:id
-*/
-describe('/GET/:id state', () => {
-  beforeEach((done) => {
-    State.__emptyCollection__()
-      .then(() => {
-        Sheet.__emptyCollection__()
-          .then(() => done())
-      })
-      .catch(done)
-  })
-  const state = {
-    id: 1,
-    prev_state_id: null,
-    value: {
-      diagnose: 'Autism',
-      start_year: 1993
-    },
-    user_id: 3,
-    remote_id: 1,
-    remote_collection: 'sheet',
-    field_name: 'medical_history'
-  }
-  it('should return an empty json token when trying to get the states with wrong idState', (done) => {
-    chai.request(app)
-      .get('/states/22')
-      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-      .send()
-      .end((err, res) => {
-        res.should.have.status(200)
-        res.body.should.be.a('object')
-        Object.keys(res.body).length.should.be.eq(0)
-        done()
-      })
-  })
-  it('should return a json collection when trying to get the states with correct idState', (done) => {
-    State
-      .create(state)
-      .then((states) => {
-        chai.request(app)
-          .get('/states/' + states[0].id)
-          .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-          .send()
-          .end((err, res) => {
-            res.should.have.status(200)
-            res.body.should.be.a('object')
-            done()
-          })
-      })
+// /*
+// * GET state/:id
+// */
+// describe('/GET/:id state', () => {
+//   beforeEach((done) => {
+//     State.__emptyCollection__()
+//       .then(() => {
+//         Sheet.__emptyCollection__()
+//           .then(() => done())
+//       })
+//       .catch(done)
+//   })
+//   const state = {
+//     id: 1,
+//     prev_state_id: null,
+//     value: {
+//       diagnose: 'Autism',
+//       start_year: 1993
+//     },
+//     user_id: 3,
+//     remote_id: 1,
+//     remote_collection: 'sheet',
+//     field_name: 'medical_history'
+//   }
+//   it('should return an empty json token when trying to get the states with wrong idState', (done) => {
+//     chai.request(app)
+//       .get('/states/22')
+//       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+//       .send()
+//       .end((err, res) => {
+//         res.should.have.status(200)
+//         res.body.should.be.a('object')
+//         Object.keys(res.body).length.should.be.eq(0)
+//         done()
+//       })
+//   })
+//   it('should return a json collection when trying to get the states with correct idState', (done) => {
+//     State
+//       .create(state)
+//       .then((states) => {
+//         chai.request(app)
+//           .get('/states/' + states[0].id)
+//           .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+//           .send()
+//           .end((err, res) => {
+//             res.should.have.status(200)
+//             res.body.should.be.a('object')
+//             done()
+//           })
+//       })
 
-  })
-})
+//   })
+// })

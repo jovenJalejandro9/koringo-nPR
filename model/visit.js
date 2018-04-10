@@ -8,6 +8,13 @@ let collection = [{
   "user_id": 1,
   "date": "Wed Feb 28",
   "state": "pending"
+}, {
+  "sheetId": 3,
+  "id": 3,
+  "timestamp": "2018-04-10T09:22:00.214Z",
+  "state": "pending",
+  "user_id": null,
+  "date": null
 }]
 let idVisit = collection.length
 module.exports = {
@@ -15,38 +22,50 @@ module.exports = {
     if (!util.checkFields(attrsVisit.slice(0, -3), body)) {
       return Promise.reject('noInfoCreateVisit')
     }
-    return User
-    .__getCollection__()
-    .then((users) => {
-      if(body.hasOwnProperty('user_id')){
-        const foundUser = users.find((user) => {
-          return user.id === body.user_id
-        })
-        if(foundUser === undefined) return Promise.reject('noUser')
-      }
-      return Sheet
+    return Sheet
       .__getCollection__()
       .then((sheets) => {
         const foundSheet = sheets.find((sheet) => {
           return sheet.id === body.sheetId
         })
-        if(foundSheet === undefined) return Promise.reject('noSheet')
+        if (foundSheet === undefined) return Promise.reject('noSheet')
         const foundVisitPending = collection.find((visit) => {
           return visit.sheetId === body.sheetId && visit.state === 'pending'
         })
-        console.log(foundVisitPending)
-        if(foundVisitPending !== undefined) return Promise.reject('existentVisit')
+        if (foundVisitPending !== undefined) return Promise.reject('existentVisit')
         const visit = Object.assign({}, body)
-        idVisit ++
+        idVisit++
         visit.id = idVisit
         visit.timestamp = util.getDate()
         visit.state = "pending"
         collection.push(util.nullComplete(visit, attrsVisit))
-        return Promise.resolve(collection)                
+        return Promise.resolve(collection)
       })
-    })     
   },
-  getAll: () => {
+  getAll: (filters) => {
+    if (Object.keys(filters).length > 0) {
+      return Sheet
+        .__getCollection__()
+        .then(sheets => {
+          const idSheets = []
+          const keysFilter = Object.keys(filters)
+          sheets.filter((sheet) => {
+            for (let i = 0; i < keysFilter.length; i++) {
+              const filterValues = JSON.parse(filters[keysFilter[i]])
+              if (util.findOne(sheet[keysFilter[i]], filterValues)) {
+                idSheets.push(sheet.id)
+                return sheet
+              }
+            }
+            return null
+          })
+          const newVisitCollection = collection.filter(visit => {
+            return idSheets.includes(visit.sheetId)
+          })
+          return Promise.resolve(newVisitCollection)
+        })
+
+    }
     return Promise.resolve(collection)
   },
   get: (id) => {
@@ -57,35 +76,34 @@ module.exports = {
     return Promise.resolve(visit)
   },
   updateById: (id, body) => {
-    if(body.hasOwnProperty('sate' && body.state !== ('pending' || 'done'))) delete body.state
+    if (body.hasOwnProperty('sate' && body.state !== ('pending' || 'done'))) delete body.state
     return User
-    .__getCollection__()
-    .then((users) => {
-      if(body.hasOwnProperty('user_id')){
-        const foundUser = users.find((user) => {
-          return user.id === body.user_id
-        })
-        if(foundUser === undefined) return Promise.reject('noUser')
-      }
-      return Sheet
-        .__getCollection__()
-        .then((sheets) => {
-          if(body.hasOwnProperty('sheetId')){
-            const foundSheet = sheets.find((sheet) => {
-              return sheet.id === body.sheetId
-            })
-            if(foundSheet === undefined) return Promise.reject('noSheet')
-          }
-          if(body.hasOwnProperty(''))
-          const foundVisitPending = collection.find((visit) => {
-            return visit.sheetId === body.sheetId && visit.state === 'pending'
+      .__getCollection__()
+      .then((users) => {
+        if (body.hasOwnProperty('user_id')) {
+          const foundUser = users.find((user) => {
+            return user.id === body.user_id
           })
-          if(foundVisitPending !== undefined) return Promise.reject('existentVisit')
-          const auxCollection = util.replace(collection, parseInt(id, 10), body)
-            .then((newcollection) => collection = newcollection)
-          return auxCollection             
-        })
-    })
+          if (foundUser === undefined) return Promise.reject('noUser')
+        }
+        return Sheet
+          .__getCollection__()
+          .then((sheets) => {
+            if (body.hasOwnProperty('sheetId')) {
+              const foundSheet = sheets.find((sheet) => {
+                return sheet.id === body.sheetId
+              })
+              if (foundSheet === undefined) return Promise.reject('noSheet')
+            }
+            const foundVisitPending = collection.find((visit) => {
+              return visit.sheetId === body.sheetId && visit.state === 'pending'
+            })
+            if (foundVisitPending !== undefined) return Promise.reject('existentVisit')
+            const auxCollection = util.replace(collection, parseInt(id, 10), body)
+              .then((newcollection) => collection = newcollection)
+            return auxCollection
+          })
+      })
   },
   removeById: (id) => {
     collection = collection.filter((ele) => {

@@ -41,7 +41,7 @@ module.exports = {
   },
   getAll: (filters) => {
     if (Object.keys(filters).length > 0) {
-      keysFilter = Object.keys(filters)
+      const keysFilter = Object.keys(filters)
       const newcollection = collection.filter((user) => {
         for (let i = 0; i < keysFilter.length; i++) {
           const filterValues =  JSON.parse(filters[keysFilter[i]])

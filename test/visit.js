@@ -5,7 +5,7 @@ process.env.NODE_ENV = 'test'
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../app')
-const Visit = require('../\/visit')
+const Visit = require('../model/visit')
 const Sheet = require('../model/sheet')
 const chaiThings = require('chai-things')
 
@@ -24,34 +24,33 @@ describe('/POST visit', () => {
   beforeEach((done) => {
     Visit.__emptyCollection__()
       .then(() => {
-				Sheet.__emptyCollection__()
-				.then(() => done())
-			})
+        Sheet.__emptyCollection__()
+          .then(() => done())
+      })
       .catch(done)
-	})
+  })
   it('should return a Incorrect token error when trying to create a visit without the compulsory fields', (done) => {
     const visit = {
-        sheetId: 1,
-        date: 'Wed Feb 28'
+      date: 'Wed Feb 28'
     }
     chai.request(app)
       .post('/visits')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send(visit)
-      .end((err, res)=>{
+      .end((err, res) => {
         res.should.have.status(400)
         res.body.should.be.a('object')
         res.body.should.have.property('code')
         res.body.should.have.property('message')
-        res.body.should.have.property('message').eql('A new visit should have at least sheetId and userId')
+        res.body.should.have.property('message').eql('A new visit should have at least sheetId')
         done()
       })
-	})
+  })
   it('should return a Incorrect token error when trying to create a visit with a wrong sheetId', (done) => {
     const visit = {
-        sheetId: 12,
-        user_id: 1,
-        date: 'Wed Feb 28'
+      sheetId: 12,
+      user_id: 1,
+      date: 'Wed Feb 28'
     }
     chai.request(app)
       .post('/visits')
@@ -65,78 +64,107 @@ describe('/POST visit', () => {
         res.body.should.have.property('message').eql('This sheet does not exist')
         done()
       })
-	})
-	it('should return a Incorrect token error when trying to create a visit with a wrong sheetId', (done) => {
-		const visit = {
-			sheetId: 1,
-			user_id: 112,
-			date: 'Wed Feb 28'
-		}
-		chai.request(app)
-		.post('/visits')
-		.set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-		.send(visit)
-		.end((err, res) => {
-				res.should.have.status(400)
-				res.body.should.be.a('object')
-				res.body.should.have.property('code')
-				res.body.should.have.property('message')
-				res.body.should.have.property('message').eql('This user does not exist')
-				done()
-		})
-	})
-  it('should return a json collection when trying to create an visit with every fields', (done) =>{
+  })
+  it('should return a Incorrect token error when trying to create a visit with a idSheet associated to another visit', (done) => {
     const sheet = {
-			"id": 2,
-			"name": "Amparo",
-			"first_surname": "Ribola",
-			"address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-			"zone": "Chiclayo"
+      "name": "Jose",
+      "first_surname": "Perez",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
     }
     Sheet
-			.create(sheet)
-			.then((sheets) => {
-			const visit = {
-					user_id: 1,
-					date: 'Wed Feb 28'
-			}
-			visit.sheetId = sheets[0].id
-				chai.request(app)
-				.post('/visits')
-				.set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-				.send(visit)
-				.end((err, res)=>{
-						res.should.have.status(201)
-						res.body.should.be.a('array')
-						res.body.length.should.be.eq(1)
-						done()
-				})
+      .create(sheet)
+      .then((sheets) => {
+        const visit = {
+          sheetId: sheets[0].id
+        }
+        Visit
+          .create(visit)
+          .then(() => {
+            chai.request(app)
+              .post('/visits')
+              .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+              .send(visit)
+              .end((err, res) => {
+                res.should.have.status(400)
+                res.body.should.be.a('object')
+                res.body.should.have.property('code')
+                res.body.should.have.property('message')
+                res.body.should.have.property('message').eql('There is already a visit with this sheet')
+                done()
+              })
+          })
+      })
+  })
 
-			})
+  it('should return a json collection when trying to create an visit with every fields', (done) => {
+    const sheet = {
+      "id": 2,
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+    }
+    Sheet
+      .create(sheet)
+      .then((sheets) => {
+        const visit = {
+          user_id: 1,
+          sheetId: sheets[0].id,
+          date: 'Wed Feb 28'
+        }
+        chai.request(app)
+          .post('/visits')
+          .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+          .send(visit)
+          .end((err, res) => {
+            res.should.have.status(201)
+            res.body.should.be.a('array')
+            res.body.length.should.be.eq(1)
+            done()
+          })
+
+      })
   })
 })
 /*
 * GET visit
 */
 describe('/GET  visit', () => {
-	beforeEach((done) => {
-		Visit.__emptyCollection__()
-		  .then(() => {
-					Sheet.__emptyCollection__()
-					.then(() => done())
-				})
-		  .catch(done)
-		})
-  const visit = {
-    sheetId: 1,
-    user_id: 1,
-    date: 'Wed Feb 28'
-}
+  beforeEach((done) => {
+    const sheet1 = {
+      "name": "Jose",
+      "first_surname": "Perez",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+    }
+    const sheet2 = {
+      "name": "Anonio",
+      "first_surname": "Lopez",
+      "address": "C Mirra 39",
+      "zone": "Illimo"
+    }
+
+    Visit.__emptyCollection__()
+      .then(() => {
+        Sheet.__emptyCollection__()
+          .then(() => {
+            Sheet.create(sheet1)
+              .then(() => {
+                Sheet.create(sheet2)
+                  .then(() => {
+                    done()
+                  })
+              })
+          })
+      })
+  })
+
   it('should return a empty json collection when trying to get the visits when the db is empty', (done) => {
     chai.request(app)
       .get('/visits')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-      .end((err, res)=>{
+      .end((err, res) => {
         res.should.have.status(200)
         res.body.should.be.a('array')
         res.body.length.should.be.eq(0)
@@ -144,23 +172,57 @@ describe('/GET  visit', () => {
       })
   })
 
-  it('should return a json collection when trying to get the visits with one visit on the db', (done) =>{
-    Visit
-      .create(visit)
-      .then(() => {
-        chai.request(app)
-          .get('/visits')
-          .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-          .end((err, res) => {
-            res.should.have.status(200)
-            res.body.should.be.a('array')
-            res.body.length.should.be.eq(1)
-            done()
+  it('should return a json collection when trying to get the visit when there is one visit on the DB', (done) => {
+    Sheet
+      .__getCollection__()
+      .then((sheets) => {
+        const visit = {
+          "sheetId": sheets[0].id
+        }
+        Visit
+          .create(visit)
+          .then(() => {
+            chai.request(app)
+              .get('/visits')
+              .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+              .end((err, res) => {
+                res.should.have.status(200)
+                res.body.should.be.a('array')
+                res.body.length.should.be.eq(1)
+                done()
+              })
           })
       })
-      .catch(done)
-
-	})
+  })
+  it('should return a json collection when trying to get the visit filtering by zones=["Illimo"]', (done) => {
+    Sheet
+      .__getCollection__()
+      .then((sheets) => {
+        const visit1 = {
+          "sheetId": sheets[0].id
+        }
+        Visit
+          .create(visit1)
+          .then(() => {
+            const visit2 = {
+              "sheetId": sheets[1].id
+            }
+            Visit
+              .create(visit2)
+              .then(() => {
+                chai.request(app)
+                  .get('/visits?zone=["Illimo"]')
+                  .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+                  .end((err, res) => {
+                    res.should.have.status(200)
+                    res.body.should.be.a('array')
+                    res.body.length.should.be.eq(1)
+                    done()
+                  })
+              })
+          })
+      })
+  })
 })
 /*
 * GET visit/:id
@@ -169,52 +231,50 @@ describe('/GET/:id visit', () => {
   beforeEach((done) => {
     Visit.__emptyCollection__()
       .then(() => {
-				Sheet.__emptyCollection__()
-				.then(() => done())
-			})
+        Sheet.__emptyCollection__()
+          .then(() => done())
+      })
       .catch(done)
-	})
-  it('should return an empty json token when trying to get the visits with wrong idVisit', (done) =>{
+  })
+  it('should return an empty json token when trying to get the visits with wrong idVisit', (done) => {
     chai.request(app)
       .get('/visits/22')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send()
-      .end((err, res)=>{
+      .end((err, res) => {
         res.should.have.status(200)
-				res.body.should.be.a('object')
-				Object.keys(res.body).length.should.be.eq(0)
+        res.body.should.be.a('object')
+        Object.keys(res.body).length.should.be.eq(0)
         done()
       })
   })
-  it('should return a json collection when trying to get the visits with correct idVisit', (done) =>{
+  it('should return a json collection when trying to get the visits with correct idVisit', (done) => {
     const sheet = {
-			"name": "Amparo",
-			"first_surname": "Ribola",
-			"address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-			"zone": "Chiclayo"
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
     }
     Sheet
       .create(sheet)
       .then((sheets) => {
-      const visit = {
-          user_id: 1,
-          date: 'Wed Feb 28'
-      }
-      visit.sheetId = sheets[0].id
+        const visit = {
+          "sheetId": sheets[0].id
+        }
         Visit
           .create(visit)
-            .then((visits) => {
-              chai.request(app)
-              .get('/visits/'+ visits[0].id)
+          .then((visits) => {
+            chai.request(app)
+              .get('/visits/' + visits[0].id)
               .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
               .send()
-              .end((err, res)=>{
+              .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('object')
                 done()
               })
-            })
-        })
+          })
+      })
   })
 })
 /*
@@ -224,18 +284,18 @@ describe('/DELETE  visit', () => {
   beforeEach((done) => {
     Visit.__emptyCollection__()
       .then(() => {
-				Sheet.__emptyCollection__()
-				.then(() => done())
-			})
+        Sheet.__emptyCollection__()
+          .then(() => done())
+      })
       .catch(done)
-	})
+  })
 
-  it('should return an empty json collection when trying to delete a visit with a wrong idVisit', (done) =>{
+  it('should return an empty json collection when trying to delete a visit with a wrong idVisit', (done) => {
     chai.request(app)
       .delete('/visits/22')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send()
-      .end((err, res)=>{
+      .end((err, res) => {
         res.should.have.status(200)
         res.body.should.be.a('array')
         done()
@@ -243,32 +303,32 @@ describe('/DELETE  visit', () => {
   })
   it('should return a json collection when trying to get the visits just with correct idVisit', (done) => {
     const sheet = {
-			"name": "Amparo",
-			"first_surname": "Ribola",
-			"address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-			"zone": "Chiclayo"
-    }    
-    Sheet
-    .create(sheet)
-    .then((sheets) => {
-    const visit = {
-        user_id: 1,
-        date: 'Wed Feb 28'
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
     }
-    visit.sheetId = sheets[0].id
-      Visit
-        .create(visit)
+    Sheet
+      .create(sheet)
+      .then((sheets) => {
+        const visit = {
+          user_id: 1,
+          date: 'Wed Feb 28'
+        }
+        visit.sheetId = sheets[0].id
+        Visit
+          .create(visit)
           .then((visits) => {
             chai.request(app)
-            .delete('/visits/'+ visits[0].id)
-            .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-            .send()
-            .end((err, res)=>{
-              res.should.have.status(200)
-              res.body.should.be.a('array')
-              res.body.length.should.be.eq(0)
-              done()
-            })
+              .delete('/visits/' + visits[0].id)
+              .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+              .send()
+              .end((err, res) => {
+                res.should.have.status(200)
+                res.body.should.be.a('array')
+                res.body.length.should.be.eq(0)
+                done()
+              })
           })
       })
   })
@@ -279,13 +339,33 @@ describe('/DELETE  visit', () => {
 */
 describe('/PATCH/:id visit', () => {
   beforeEach((done) => {
+    const sheet1 = {
+      "name": "Jose",
+      "first_surname": "Perez",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+    }
+    const sheet2 = {
+      "name": "Anonio",
+      "first_surname": "Lopez",
+      "address": "C Mirra 39",
+      "zone": "Illimo"
+    }
+
     Visit.__emptyCollection__()
       .then(() => {
-				Sheet.__emptyCollection__()
-				.then(() => done())
-			})
-      .catch(done)
-	})
+        Sheet.__emptyCollection__()
+          .then(() => {
+            Sheet.create(sheet1)
+              .then(() => {
+                Sheet.create(sheet2)
+                  .then(() => {
+                    done()
+                  })
+              })
+          })
+      })
+  })
   const visit = {
     name: 'Sonia',
     first_surname: 'Lolo',
@@ -311,45 +391,146 @@ describe('/PATCH/:id visit', () => {
       .patch('/visits/22')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send()
-      .end((err, res)=>{
+      .end((err, res) => {
         res.should.have.status(200)
         res.body.should.be.a('array')
         done()
       })
   })
-})
-  it('should return a json collection when trying to patch a visit with everything OK', (done) =>{
-    const change = {
-      name: 'Roberto'
-    }
+
+  it('should error token json when trying to patch a visit with a non-existent userId', (done) => {
     const sheet = {
-			"name": "Amparo",
-			"first_surname": "Ribola",
-			"address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-			"zone": "Chiclayo"
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
     }
     Sheet
       .create(sheet)
       .then((sheets) => {
-      const visit = {
-          user_id: 1,
+        const visit = {
+          sheetId: sheets[0].id,
           date: 'Wed Feb 28'
-      }
-      const change = {
-      }
-      visit.sheetId = sheets[0].id
+        }
+        const change = {
+          user_id: 1234
+        }
         Visit
           .create(visit)
-            .then((visits) => {
-              chai.request(app)
-              .patch('/visits/'+ visits[0].id)
+          .then((visits) => {
+            chai.request(app)
+              .patch('/visits/' + visits[0].id)
               .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
               .send(change)
-              .end((err, res)=>{
+              .end((err, res) => {
+                res.should.have.status(400)
+                res.body.should.be.a('object')
+                done()
+              })
+          })
+      })
+  })
+  it('should error token json when trying to patch a visit with a non-existent shetId', (done) => {
+    const sheet = {
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+    }
+    Sheet
+      .create(sheet)
+      .then((sheets) => {
+        const visit = {
+          sheetId: sheets[0].id,
+          date: 'Wed Feb 28'
+        }
+        const change = {
+          sheetId: 1234 
+        }
+        Visit
+          .create(visit)
+          .then((visits) => {
+            chai.request(app)
+              .patch('/visits/' + visits[0].id)
+              .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+              .send(change)
+              .end((err, res) => {
+                res.should.have.status(400)
+                res.body.should.be.a('object')
+                done()
+              })
+          })
+      })
+  })
+  it('should error token json when trying to patch a visit with pointing to the same sheet than another', (done) => {
+    const sheet = {
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+    }
+    Sheet
+      .__getCollection__()
+      .then((sheets) => {
+        const visit = {
+          sheetId: sheets[0].id
+        }
+        const change = {
+          sheetId: visit.sheetId
+        }
+        const visit2 = {
+          sheetId: sheets[1].id
+        }
+        Visit
+          .create(visit)
+          .then(() => {
+            Visit
+            .create(visit2)
+            .then((visits) => {
+              chai.request(app)
+              .patch('/visits/' + visits[1].id)
+              .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+              .send(change)
+              .end((err, res) => {
+                res.should.have.status(400)
+                res.body.should.be.a('object')
+                 done()
+              })
+            })
+          })
+      })
+  })
+  it('should return a json collection when trying to patch a visit with everything OK', (done) => {
+    const sheet = {
+      "name": "Amparo",
+      "first_surname": "Ribola",
+      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
+      "zone": "Chiclayo"
+    }
+    Sheet
+      .create(sheet)
+      .then((sheets) => {
+        const visit = {
+          user_id: 1,
+          date: 'Wed Feb 28'
+        }
+        const change = {
+          
+        }
+        visit.sheetId = sheets[0].id
+        Visit
+          .create(visit)
+          .then((visits) => {
+            chai.request(app)
+              .patch('/visits/' + visits[0].id)
+              .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+              .send(change)
+              .end((err, res) => {
                 res.should.have.status(200)
                 res.body.should.be.a('array')
                 done()
               })
-            })
-        })
- })
+          })
+      })
+  })
+})

@@ -1,10 +1,10 @@
 const Visit = require('../model/visit')
 const util = require('../lib/utils')
-const User = require('../model/user')
-const Sheet = require('../model/sheet')
 const error = require('../lib/error')
 
+
 const attrsVisit = ['sheetId', 'date', 'user_id', 'state']
+const attrParams = ['zone','']
 
 exports.create = (req, res) => {
   const visitData = util.pick(req.body, attrsVisit.slice(0,-3))
@@ -14,8 +14,9 @@ exports.create = (req, res) => {
     .catch((err) => res.status(400).send(error[err]()))
   }
 exports.getAll =(req, res) => {
+  const params = util.pick(req.query, attrParams)
   Visit
-    .getAll()
+    .getAll(params)
     .then((result) => res.status(200).json(result))
     .catch((err) => res.status(400).send(error[err]()))
 }
