@@ -21,7 +21,7 @@ exports.getAll = (req, res) => {
   User
     .getAll(params)
     .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(400).send(err))
+    .catch((err) => res.status(400).send(error[err]()))
 }
 
 exports.get = (req, res) => {

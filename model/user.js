@@ -1,6 +1,7 @@
 const util = require('../lib/utils')
-const attrsUser = ['name', 'first_surname', 'second_surname', 'nickname', 'password', 'email', 'birthday', 'studies', 'professions', 'prev_volunteering', 'role']
 
+const attrsUser = ['name', 'first_surname', 'second_surname', 'nickname', 'password', 'email', 'birthday', 'studies', 'professions', 'prev_volunteering', 'role']
+const filterStates = ['medical_diagnose']
 const user1 = {
   id: 1,
   name: 'root',
@@ -28,7 +29,7 @@ module.exports = {
     }
     const user = Object.assign({}, body)
     if (!user.hasOwnProperty('role')) {
-      user.role = 'normal'
+      r.role = 'normal'
     }
     if (user.role !== 'normal' && user.role !== 'admin') {
       return Promise.reject('incorrectRole')
@@ -45,8 +46,15 @@ module.exports = {
       const newcollection = collection.filter((user) => {
         for (let i = 0; i < keysFilter.length; i++) {
           const filterValues =  JSON.parse(filters[keysFilter[i]])
-          if (util.findOne(user[keysFilter[i]], filterValues)) {
-            return user
+          if(!filterStates.includes(keysFilter[i])){
+            console.log("dentro!!")
+            if (util.findOne(user[keysFilter[i]], filterValues)) {
+              return user
+            } 
+          }else{
+            if (util.findOneState(keysFilter[i], user[keysFilter[i]], filterValues)) {
+              return user
+            }
           }
         }
         return null
