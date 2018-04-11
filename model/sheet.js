@@ -1,7 +1,7 @@
 const util = require('../lib/utils')
 const State = require('../model/state')
 const attrsSheet = ['name', 'first_surname', 'second_surname', 'birthday', 'id_number', 'zone', 'address', 'family_photos', 'house_photos', 'inCharge',
-  'center', 'therapies', 'social_situation', 'medical_information', 'family_information', 'home_info', 'economic_information',
+  'center', 'therapies', 'social_situation', 'medical_information', 'family_information', 'home_info', 'familiar_income','external_support', 'feeding_center', 'other_helps',
   'general_information', 'manifested_information', 'detected_information', 'warning_information', 'complete','sponsored']
 let collection = [
   {
@@ -9,14 +9,16 @@ let collection = [
     "name": "Jose",
     "first_surname": "Perez",
     "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-    "zone": "Chiclayo"
+    "zone": "Chiclayo", 
+    "help": false 
   },
   {
     "id": 2,
     "name": "Amparo",
     "first_surname": "Ribola",
     "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-    "zone": "Illimo"
+    "zone": "Illimo", 
+    "help": true 
   }
 ]
 let idSheet = collection.length
@@ -26,6 +28,7 @@ module.exports = {
     const sheet = Object.assign({}, body)
     idSheet++
     sheet.id = idSheet
+    sheet.help = false 
     sheet.complete = false
     sheet.timestamp = util.getDate()
     collection.push(util.nullComplete(sheet, attrsSheet))

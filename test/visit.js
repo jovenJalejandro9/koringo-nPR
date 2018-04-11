@@ -194,7 +194,7 @@ describe('/GET  visit', () => {
           })
       })
   })
-  it('should return a json collection when trying to get the visit filtering by zones=["Illimo"]', (done) => {
+  it('should return a json collection when trying to get the visit filtering by zone=["Illimo"]', (done) => {
     Sheet
       .__getCollection__()
       .then((sheets) => {
@@ -386,14 +386,14 @@ describe('/PATCH/:id visit', () => {
       'AMI3'
     ]
   }
-  it('should return an empty json collection when trying to parch a visits with wrong idVisit', (done) => {
+  it('should return an empty json collection when trying to patch a visits with wrong idVisit', (done) => {
     chai.request(app)
       .patch('/visits/22')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send()
       .end((err, res) => {
-        res.should.have.status(200)
-        res.body.should.be.a('array')
+        res.should.have.status(400)
+        res.body.should.be.a('object')
         done()
       })
   })

@@ -4,7 +4,7 @@ const error = require('../lib/error')
 
 
 const attrsVisit = ['sheetId', 'date', 'user_id', 'state']
-const attrParams = ['zone','']
+const attrParams = ['zone', 'help']
 
 exports.create = (req, res) => {
   const visitData = util.pick(req.body, attrsVisit.slice(0,-3))

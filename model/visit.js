@@ -9,8 +9,8 @@ let collection = [{
   "date": "Wed Feb 28",
   "state": "pending"
 }, {
-  "sheetId": 3,
-  "id": 3,
+  "sheetId": 2,
+  "id": 2,
   "timestamp": "2018-04-10T09:22:00.214Z",
   "state": "pending",
   "user_id": null,
@@ -99,9 +99,14 @@ module.exports = {
               return visit.sheetId === body.sheetId && visit.state === 'pending'
             })
             if (foundVisitPending !== undefined) return Promise.reject('existentVisit')
-            const auxCollection = util.replace(collection, parseInt(id, 10), body)
-              .then((newcollection) => collection = newcollection)
-            return auxCollection
+            return util
+              .findByAttr(collection, 'id', id)
+              .then(ele => util.merge(ele, body))
+              .then(newEle => util.replace(collection, id, newEle))
+              .then((newcollection) => {
+                collection = newcollection
+                return newcollection
+              })
           })
       })
   },
