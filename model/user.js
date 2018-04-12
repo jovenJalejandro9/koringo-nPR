@@ -1,7 +1,6 @@
 const util = require('../lib/utils')
 
 const attrsUser = ['name', 'first_surname', 'second_surname', 'nickname', 'password', 'email', 'birthday', 'studies', 'professions', 'prev_volunteering', 'role']
-const filterStates = ['medical_diagnose']
 const user1 = {
   id: 1,
   name: 'root',
@@ -21,20 +20,22 @@ let idUser = collection.length
 
 module.exports = {
   create: (body) => {
-    if (body.hasOwnProperty('role') && (body.role !== 'normal' || body.role !== 'admin')) {
+
+    if (body.hasOwnProperty('role') && !['normal','admin'].includes(body.role)) {
+      console.log("gollk")
       return Promise.reject('incorrectRole')
     }
     if (!util.checkFields(attrsUser.slice(0, -1), body)) {
+      console.log("dios!!")
+      console.log(attrsUser.slice(0, -1))
       return Promise.reject('noInfoCreateUser')
     }
     const user = Object.assign({}, body)
     if (!user.hasOwnProperty('role')) {
-      r.role = 'normal'
+      user.role = 'normal'
     }
-    if (user.role !== 'normal' && user.role !== 'admin') {
-      return Promise.reject('incorrectRole')
-    }
-    idUser ++
+
+    idUser++
     user.id = idUser
     user.timestamp = util.getDate()
     collection.push(util.nullComplete(user, attrsUser))
@@ -45,16 +46,9 @@ module.exports = {
       const keysFilter = Object.keys(filters)
       const newcollection = collection.filter((user) => {
         for (let i = 0; i < keysFilter.length; i++) {
-          const filterValues =  JSON.parse(filters[keysFilter[i]])
-          if(!filterStates.includes(keysFilter[i])){
-            console.log("dentro!!")
-            if (util.findOne(user[keysFilter[i]], filterValues)) {
-              return user
-            } 
-          }else{
-            if (util.findOneState(keysFilter[i], user[keysFilter[i]], filterValues)) {
-              return user
-            }
+          const filterValues = JSON.parse(filters[keysFilter[i]])
+          if (util.findOne(user[keysFilter[i]], filterValues)) {
+            return user
           }
         }
         return null

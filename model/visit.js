@@ -5,12 +5,13 @@ const attrsVisit = ['sheetId', 'user_id', 'date', 'state']
 let collection = [{
   "id": 1,
   "sheetId": 1,
-  "user_id": 1,
-  "date": "Wed Feb 28",
-  "state": "pending"
+  "timestamp": "2018-04-10T09:22:00.214Z",
+  "state": "pending",
+  "user_id": null,
+  "date": null
 }, {
-  "sheetId": 2,
   "id": 2,
+  "sheetId": 2,
   "timestamp": "2018-04-10T09:22:00.214Z",
   "state": "pending",
   "user_id": null,

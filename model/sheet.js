@@ -1,30 +1,17 @@
 const util = require('../lib/utils')
 const State = require('../model/state')
-const attrsSheet = ['name', 'first_surname', 'zone', 'address', 'second_surname', 'birthday', 'id_number', 'family_photos', 'house_photos', 'inCharge',
-'center', 'therapies', 'sociale_situation', 'medical_diagnose', 'medical_mobility', 'medical_wheel_chair', 'medical_comunication', 'medical_tests', 'medical_treatment',
-'medical_relative_disease', 'family_information',
-'home_own_rent', 'home_material', 'home_facilities', 'home_num_rooms', 'home_numBeds', 'home_forniture', 'home_salubrity',
-'economic_familiar_income', 'economic_external_support', 'economic_feeding_center', 'economic_others',
-'general_information', 'manifested_information', 'detected_information', 'warning_information', 'complete']
-let collection = [
-  {
-    "id": 1,
-    "name": "Jose",
-    "first_surname": "Perez",
-    "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-    "zone": "Chiclayo",
-    "help": false
-  },
-  {
-    "id": 2,
-    "name": "Amparo",
-    "first_surname": "Ribola",
-    "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-    "zone": "Illimo",
-    "help": true,
-    "medical_diagnose": null
-  }
-]
+const example = require('../lib/examples')
+
+const filterStates = ['family_inCharge', 'family_information', 'education_center',
+  'medical_therapies', 'medical_diagnose', 'medical_mobility', 'medical_wheel_chair', 'medical_comunication',
+  'medical_tests', 'medical_treatment', 'home_own_rent', 'home_material', 'economic_familiar_income', 'economic_external_support']
+const attrsSheet = ['name', 'first_surname', 'zone', 'address', 'second_surname', 'birthday', 'id_number', 'photos_family',
+  'photos_house', 'family_inCharge', 'family_information', 'education_center', 'social_situation', 'medical_therapies',
+  'medical_diagnose', 'medical_mobility', 'medical_wheel_chair', 'medical_comunication', 'medical_tests', 'medical_treatment', 'medical_relative_disease',
+  'home_own_rent', 'home_material', 'home_facilities', 'home_num_rooms', 'home_numBeds', 'home_forniture', 'home_salubrity',
+  'economic_familiar_income', 'economic_external_support', 'economic_feeding_center', 'economic_others',
+  'general_information', 'manifested_information', 'detected_information', 'warning_information', 'complete']
+let collection = [example.sheet1, example.sheet2]
 let idSheet = collection.length
 
 module.exports = {
@@ -71,8 +58,14 @@ module.exports = {
                   const newSheetColl = everySheet.filter((sheet) => {
                     for (let i = 0; i < keysFilter.length; i++) {
                       const filterValues = JSON.parse(filters[keysFilter[i]])
-                      if (util.findOne(sheet[keysFilter[i]], filterValues)) {
-                        return sheet
+                      if (filterStates.includes(keysFilter[i])) {
+                        if (util.findOneState(sheet[keysFilter[i]], filterValues)) {
+                          return sheet
+                        }
+                      } else {
+                        if (util.findOne(sheet[keysFilter[i]], filterValues)) {
+                          return sheet
+                        }
                       }
                     }
                     return null
