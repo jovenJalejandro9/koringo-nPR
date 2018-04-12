@@ -22,12 +22,9 @@ module.exports = {
   create: (body) => {
 
     if (body.hasOwnProperty('role') && !['normal','admin'].includes(body.role)) {
-      console.log("gollk")
       return Promise.reject('incorrectRole')
     }
     if (!util.checkFields(attrsUser.slice(0, -1), body)) {
-      console.log("dios!!")
-      console.log(attrsUser.slice(0, -1))
       return Promise.reject('noInfoCreateUser')
     }
     const user = Object.assign({}, body)
@@ -66,7 +63,6 @@ module.exports = {
     if (body.hasOwnProperty('role') && body.role !== 'normal' && body.role !== 'admin') {
       return Promise.reject('incorrectRole')
     }
-    console.log("dentro de model update")
     return util
       .replace(collection, id, body)
       .then((newcollection) => {

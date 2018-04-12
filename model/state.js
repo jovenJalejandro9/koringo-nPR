@@ -1,7 +1,7 @@
 const util = require('../lib/utils')
 const User = require('../model/user')
 const Sheet = require('../model/sheet')
-const example = require('../lib/example')
+const example = require('../lib/examples')
 
 const attrsState = ['prev_state_id', 'value', 'user_id', 'remote_id', 'remote_collection', 'field_name']
 const remote_collections = ['sheet']

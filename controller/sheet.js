@@ -13,7 +13,6 @@ const attrsSheet = ['name', 'first_surname', 'zone', 'address', 'second_surname'
   'general_information', 'manifested_information', 'detected_information', 'warning_information', 'complete']
 
 exports.create = (req, res) => {
-  console.log(attrsSheet.slice(0, 7))
   let sheetData = util.pick(req.body, attrsSheet.slice(0, 7))
   Sheet
     .create(sheetData)

@@ -93,12 +93,10 @@ module.exports = {
       })
   },
   updateById: (id, body) => {
-    console.log(id)
     return util.replace(collection, parseInt(id, 10), body)
       .then((newcollection) => collection = newcollection)
   },
   removeById: (id) => {
-    console.log(collection)
     collection = collection.filter((ele) => {
       return ele.id !== id
     })
