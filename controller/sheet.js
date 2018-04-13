@@ -1,19 +1,17 @@
-const Sheet = require('../model/sheet')
+
 const error = require('../lib/error')
 const util = require('../lib/utils')
+const Sheet = require('../model/sheet')
 
-const attrParams = ['name','medical_diagnose']
-// const attrParams = ['name', 'age', 'zone', 'center', 'therapies', 'diagnose', 'mobility', 'wheel_chair', 'comunication', 'tests', 'treatment']
+const attrParams = ['name', 'first_surname', 'zone', 'address', 'second_surname', 'birthday', 'id_number', 'complete', 'family_inCharge', 'family_information', 'education_center',
+  'medical_therapies', 'medical_diagnose', 'medical_mobility', 'medical_wheel_chair', 'medical_comunication',
+  'medical_tests', 'medical_treatment', 'home_own_rent', 'home_material', 'economic_familiar_income', 'economic_external_support']
 
-const attrsSheet = ['name', 'first_surname', 'zone', 'address', 'second_surname', 'birthday', 'id_number', 'family_photos', 'house_photos', 'inCharge',
-  'center', 'therapies', 'social_situation', 'medical_diagnose', 'medical_mobility', 'medical_wheel_chair', 'medical_comunication', 'medical_tests', 'medical_treatment',
-  'medical_relative_disease', 'family_information',
-  'home_own_rent', 'home_material', 'home_facilities', 'home_num_rooms', 'home_numBeds', 'home_forniture', 'home_salubrity',
-  'economic_familiar_income', 'economic_external_support', 'economic_feeding_center', 'economic_others',
-  'general_information', 'manifested_information', 'detected_information', 'warning_information', 'complete']
+
+const normalAttrsSheet = ['name', 'first_surname', 'zone', 'address', 'second_surname', 'birthday', 'id_number', 'complete']
 
 exports.create = (req, res) => {
-  let sheetData = util.pick(req.body, attrsSheet.slice(0, 7))
+  const sheetData = util.pick(req.body, normalAttrsSheet.slice(0, -1))
   Sheet
     .create(sheetData)
     .then((result) => res.status(201).json(result))
@@ -36,7 +34,7 @@ exports.get = (req, res) => {
 }
 
 exports.update = (req, res) => {
-  let sheetData = util.pick(req.body, attrsSheet)
+  const sheetData = util.pick(req.body, normalAttrsSheet)
   Sheet
     .updateById(parseInt(req.params.id, 10), sheetData)
     .then((result) => res.status(200).json(result))

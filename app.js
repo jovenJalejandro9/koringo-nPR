@@ -3,7 +3,7 @@ const logger = require('morgan')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const app = express()
-const router = express.Router()
+const router = new express.Router()
 
 // uncomment after placing your favicon in /public
 app.use(router)

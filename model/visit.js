@@ -3,19 +3,19 @@ const User = require('../model/user')
 const Sheet = require('../model/sheet')
 const attrsVisit = ['sheetId', 'user_id', 'date', 'state']
 let collection = [{
-  "id": 1,
-  "sheetId": 1,
-  "timestamp": "2018-04-10T09:22:00.214Z",
-  "state": "pending",
-  "user_id": null,
-  "date": null
+  id: 1,
+  sheetId: 1,
+  timestamp: '2018-04-10T09:22:00.214Z',
+  state: 'pending',
+  user_id: null,
+  date: null
 }, {
-  "id": 2,
-  "sheetId": 2,
-  "timestamp": "2018-04-10T09:22:00.214Z",
-  "state": "pending",
-  "user_id": null,
-  "date": null
+  id: 2,
+  sheetId: 2,
+  timestamp: '2018-04-10T09:22:00.214Z',
+  state: 'pending',
+  user_id: null,
+  date: null
 }]
 let idVisit = collection.length
 module.exports = {
@@ -38,7 +38,7 @@ module.exports = {
         idVisit++
         visit.id = idVisit
         visit.timestamp = util.getDate()
-        visit.state = "pending"
+        visit.state = 'pending'
         collection.push(util.nullComplete(visit, attrsVisit))
         return Promise.resolve(collection)
       })
@@ -77,7 +77,7 @@ module.exports = {
     return Promise.resolve(visit)
   },
   updateById: (id, body) => {
-    if (body.hasOwnProperty('sate' && body.state !== ('pending' || 'done'))) delete body.state
+    if (body.hasOwnProperty('state' && body.state !== ('pending' || 'done'))) delete body.state
     return User
       .__getCollection__()
       .then((users) => {

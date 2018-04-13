@@ -38,14 +38,14 @@ describe('/POST state', () => {
   })
   it('should return a Incorrect token error when trying to create a state without the compulsory fields', (done) => {
     const state = {
-      "value": {
-        "start_year": 2017,
-        "name": "Jesus de Prada",
-        "observations": ""
+      value: {
+        start_year: 2017,
+        name: 'Jesus de Prada',
+        observations: ''
       },
-      "user_id": 1,
-      "remote_id": 3,
-      "remote_collection": "sheet"
+      user_id: 1,
+      remote_id: 3,
+      remote_collection: 'sheet'
     }
     chai.request(app)
       .post('/states')
@@ -199,15 +199,15 @@ describe('/GET/:id state', () => {
   })
   it('should return a json when trying to get the states with correct idState', (done) => {
     const state = {
-      "value": {
-        "start_year": 2017,
-        "name": "Autism",
-        "observations": ""
+      value: {
+        start_year: 2017,
+        name: 'Autism',
+        observations: ''
       },
-      "user_id": 1,
-      "remote_id": 2,
-      "remote_collection": "sheet",
-      "field_name": "medical_diagnose"
+      user_id: 1,
+      remote_id: 2,
+      remote_collection: 'sheet',
+      field_name: 'medical_diagnose'
     }
     State
       .create(state)

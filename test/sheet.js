@@ -7,14 +7,12 @@ const chaiHttp = require('chai-http')
 const app = require('../app')
 const Sheet = require('../model/sheet')
 const State = require('../model/state')
-const User = require('../model/user')
 const example = require('../lib/examples')
 const chaiThings = require('chai-things')
 
 chai.use(chaiHttp)
-chai.should()
+const should = chai.should()
 chai.use(chaiThings)
-
 /*
 * Test the Sheet
 */
@@ -35,7 +33,7 @@ describe('/POST sheet', () => {
   })
   it('should return a Incorrect token error when trying to create a sheet without the compulsory fields', (done) => {
     const sheet = {
-      "value": 2
+      value: 2
     }
     chai.request(app)
       .post('/sheets')
@@ -89,19 +87,12 @@ describe('/GET/ sheet', () => {
               .then(() => {
                 Sheet.create(example.sheet2)
                   .then((sheets) => {
-                    console.log(sheets)
-                    const newState1 = Object.assign({},example.sheet1)
-                    newState1.remote_id = sheets[0].id
-                    console.log('------------------')
-                    console.log(newState1)
-                    console.log('------------------')
-                    State.create(newState1)
+                    example.state1.remote_id = sheets[0].id
+                    example.state2.remote_id = sheets[0].id
+                    State.create(example.state1)
                       .then(() => {
                         State.create(example.state2)
-                          .then((states) => {
-                            console.log(states)
-                            done()
-                          })
+                          .then(() => done())
                       })
                   })
               })
@@ -123,6 +114,18 @@ describe('/GET/ sheet', () => {
           })
       })
   })
+  it('should return json collection with every sheets when trying to get a collection of sheets with no filters', (done) => {
+    chai.request(app)
+      .get('/sheets')
+      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+      .send()
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.be.a('array')
+        Object.keys(res.body).length.should.be.eq(2)
+        done()
+      })
+  })
   it('should return json collection with every sheets when trying to get a collection of sheets with wrong filters', (done) => {
     chai.request(app)
       .get('/sheets?nonfilter=[ "Autism"]')
@@ -135,7 +138,7 @@ describe('/GET/ sheet', () => {
         done()
       })
   })
-  it('should return json collection when trying to get a collection with with normal filter(name="Javier")', (done) => {
+  it('should return json collection when trying to get a collection with a normal filter and just one value(name=["Javier"])', (done) => {
     chai.request(app)
       .get('/sheets?name=[ "Javier"]')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
@@ -147,35 +150,225 @@ describe('/GET/ sheet', () => {
         done()
       })
   })
-  it('should return json collection when trying to get a collection with with state filter(medical_diagnose=[Down Sindrome])', (done) => {
-    console.log("ultima prueba")
-    done()
-    // chai.request(app)
-    //   .get('/sheets?medical_diagnose=["Down Sindrome"]')
-    //   .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-    //   .send()
-    //   .end((err, res) => {
-    //     res.should.have.status(200)
-    //     res.body.should.be.a('array')
-    //     Object.keys(res.body).length.should.be.eq(1)
-    //     done()
-    //   })
+  it('should return json collection when trying to get a collection with with normal filter and more than one value(name=["Javier","Jose"])', (done) => {
+    chai.request(app)
+      .get('/sheets?name=["Javier", "Jose"]')
+      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+      .send()
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.be.a('array')
+        Object.keys(res.body).length.should.be.eq(2)
+        done()
+      })
   })
-  //   it('should return  a json collection when trying to get a collection of sheets wtih some sheets on the db', (done) => {
-  //     Sheet
-  //       .create(example.sheet1)
-  //       .then(() => {
-  //         chai.request(app)
-  //           .get('/sheets')
-  //           .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-  //           .send()
-  //           .end((err, res) => {
-  //             res.should.have.status(200)
-  //             res.body.should.be.a('array')
-  //             Object.keys(res.body).length.should.be.eq(1)
-  //             done()
-  //           })
-  //       })
-  //   })
+  it('should return json collection when trying to get a collection with with state filter(medical_diagnose=[Down Sindrome])', (done) => {
+    chai.request(app)
+      .get('/sheets?medical_diagnose=["Down Sindrome"]')
+      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+      .send()
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.be.a('array')
+        res.body.length.should.be.eq(1)
+        done()
+      })
+  })
+  it('should return json collection when trying to get a collection with with state filter and a normal filter(medical_diagnose=[Down Sindrome&name=["Jose"])', (done) => {
+    chai.request(app)
+      .get('/sheets?medical_diagnose=["Down Sindrome"]&name=["Jose"]')
+      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+      .send()
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.be.a('array')
+        res.body.length.should.be.eq(2)
+        done()
+      })
+  })
+})
+/*
+* GET:id sheet
+*/
+describe('/GET sheet', () => {
+  beforeEach((done) => {
+    Sheet.__emptyCollection__()
+      .then(() => {
+        State.__emptyCollection__()
+          .then(() => {
+            Sheet.create(example.sheet1)
+              .then(() => {
+                Sheet.create(example.sheet2)
+                  .then((sheets) => {
+                    example.state1.remote_id = sheets[0].id
+                    example.state2.remote_id = sheets[0].id
+                    State.create(example.state1)
+                      .then(() => {
+                        State.create(example.state2)
+                          .then(() => done())
+                      })
+                  })
+              })
+          })
+      })
+  })
+  it('should return an empty json when trying to get a sheet with a wrong id', (done) => {
+    chai.request(app)
+      .get('/sheets/23452')
+      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+      .send()
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.be.a('object')
+        done()
+      })
+  })
+  it('should return a sheet json when trying to get a sheet with a good id', (done) => {
+    Sheet
+      .__getCollection__()
+      .then((sheets) => {
+        chai.request(app)
+          .get('/sheets/' + sheets[0].id)
+          .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+          .send()
+          .end((err, res) => {
+            res.should.have.status(200)
+            res.body.should.be.a('object')
+            done()
+          })
+      })
+  })
+})
+
+/*
+* PATCH:id sheet
+*/
+describe('/PATCH sheet', () => {
+  beforeEach((done) => {
+    Sheet.__emptyCollection__()
+      .then(() => {
+        State.__emptyCollection__()
+          .then(() => {
+            Sheet.create(example.sheet1)
+              .then(() => {
+                Sheet.create(example.sheet2)
+                  .then((sheets) => {
+                    example.state1.remote_id = sheets[0].id
+                    example.state2.remote_id = sheets[0].id
+                    State.create(example.state1)
+                      .then(() => {
+                        State.create(example.state2)
+                          .then(() => done())
+                      })
+                  })
+              })
+          })
+      })
+  })
+  it('should return a json collection with no changes when trying to patch a sheet with a wrong id', (done) => {
+    const change = {
+      name: 'Raul'
+    }
+    chai.request(app)
+      .patch('/sheets/23452')
+      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+      .send(change)
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.be.a('array')
+        done()
+      })
+  })
+  it('should return a json collection with no changes when trying to patch a sheet with a wrong field', (done) => {
+    const change = {
+      medical_mobility: true
+    }
+    Sheet
+      .__getCollection__()
+      .then((sheets) => {
+        chai.request(app)
+          .patch('/sheets/' + sheets[0].id)
+          .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+          .send(change)
+          .end((err, res) => {
+            res.should.have.status(200)
+            res.body.should.be.a('array')
+            should.equal(res.body[0].medical_mobility, null)
+            done()
+          })
+      })
+  })
+  it('should return a json collection with the fields updated when trying to patch a sheet with correct fields', (done) => {
+    const change = {
+      name: 'Raul'
+    }
+    Sheet
+      .__getCollection__()
+      .then((sheets) => {
+        chai.request(app)
+          .patch('/sheets/' + sheets[0].id)
+          .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+          .send(change)
+          .end((err, res) => {
+            res.should.have.status(200)
+            res.body.should.be.a('array')
+            should.equal(res.body[0].name, 'Raul')
+            done()
+          })
+      })
+  })
+})
+
+/*
+* DELETE:id sheet
+*/
+describe('/POST sheet', () => {
+  beforeEach((done) => {
+    Sheet.__emptyCollection__()
+      .then(() => {
+        State.__emptyCollection__()
+          .then(() => {
+            Sheet.create(example.sheet1)
+              .then(() => {
+                Sheet.create(example.sheet2)
+                  .then((sheets) => {
+                    example.state1.remote_id = sheets[0].id
+                    example.state2.remote_id = sheets[0].id
+                    State.create(example.state1)
+                      .then(() => {
+                        State.create(example.state2)
+                          .then(() => done())
+                      })
+                  })
+              })
+          })
+      })
+  })
+  it('should return a json collection with no eliminations when trying to delete a sheet with a wrong id', (done) => {
+    chai.request(app)
+      .delete('/sheets/23452')
+      .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.should.be.a('array')
+        res.body.length.should.be.eq(2)
+        done()
+      })
+  })
+  it('should return a json collection with one less element when trying to patch a sheet with a correct field', (done) => {
+    Sheet
+      .__getCollection__()
+      .then((sheets) => {
+        chai.request(app)
+          .delete('/sheets/' + sheets[0].id)
+          .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+          .end((err, res) => {
+            res.should.have.status(200)
+            res.body.should.be.a('array')
+            res.body.length.should.be.eq(1)
+            done()
+          })
+      })
+  })
 })
 

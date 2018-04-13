@@ -67,10 +67,10 @@ describe('/POST visit', () => {
   })
   it('should return a Incorrect token error when trying to create a visit with a idSheet associated to another visit', (done) => {
     const sheet = {
-      "name": "Jose",
-      "first_surname": "Perez",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Jose',
+      first_surname: 'Perez',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     Sheet
       .create(sheet)
@@ -99,11 +99,11 @@ describe('/POST visit', () => {
 
   it('should return a json collection when trying to create an visit with every fields', (done) => {
     const sheet = {
-      "id": 2,
-      "name": "Amparo",
-      "first_surname": "Ribola",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      id: 2,
+      name: 'Amparo',
+      first_surname: 'Ribola',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     Sheet
       .create(sheet)
@@ -133,16 +133,16 @@ describe('/POST visit', () => {
 describe('/GET  visit', () => {
   beforeEach((done) => {
     const sheet1 = {
-      "name": "Jose",
-      "first_surname": "Perez",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Jose',
+      first_surname: 'Perez',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     const sheet2 = {
-      "name": "Anonio",
-      "first_surname": "Lopez",
-      "address": "C Mirra 39",
-      "zone": "Illimo"
+      name: 'Anonio',
+      first_surname: 'Lopez',
+      address: 'C Mirra 39',
+      zone: 'Illimo'
     }
 
     Visit.__emptyCollection__()
@@ -172,12 +172,12 @@ describe('/GET  visit', () => {
       })
   })
 
-  it('should return a json collection when trying to get the visit when there is one visit on the DB', (done) => {
+  it('should return a json collection when trying to get the visit and there is one visit on the DB', (done) => {
     Sheet
       .__getCollection__()
       .then((sheets) => {
         const visit = {
-          "sheetId": sheets[0].id
+          sheetId: sheets[0].id
         }
         Visit
           .create(visit)
@@ -199,13 +199,13 @@ describe('/GET  visit', () => {
       .__getCollection__()
       .then((sheets) => {
         const visit1 = {
-          "sheetId": sheets[0].id
+          sheetId: sheets[0].id
         }
         Visit
           .create(visit1)
           .then(() => {
             const visit2 = {
-              "sheetId": sheets[1].id
+              sheetId: sheets[1].id
             }
             Visit
               .create(visit2)
@@ -250,16 +250,16 @@ describe('/GET/:id visit', () => {
   })
   it('should return a json collection when trying to get the visits with correct idVisit', (done) => {
     const sheet = {
-      "name": "Amparo",
-      "first_surname": "Ribola",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Amparo',
+      first_surname: 'Ribola',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     Sheet
       .create(sheet)
       .then((sheets) => {
         const visit = {
-          "sheetId": sheets[0].id
+          sheetId: sheets[0].id
         }
         Visit
           .create(visit)
@@ -303,10 +303,10 @@ describe('/DELETE  visit', () => {
   })
   it('should return a json collection when trying to get the visits just with correct idVisit', (done) => {
     const sheet = {
-      "name": "Amparo",
-      "first_surname": "Ribola",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Amparo',
+      first_surname: 'Ribola',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     Sheet
       .create(sheet)
@@ -340,16 +340,16 @@ describe('/DELETE  visit', () => {
 describe('/PATCH/:id visit', () => {
   beforeEach((done) => {
     const sheet1 = {
-      "name": "Jose",
-      "first_surname": "Perez",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Jose',
+      first_surname: 'Perez',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     const sheet2 = {
-      "name": "Anonio",
-      "first_surname": "Lopez",
-      "address": "C Mirra 39",
-      "zone": "Illimo"
+      name: 'Anonio',
+      first_surname: 'Lopez',
+      address: 'C Mirra 39',
+      zone: 'Illimo'
     }
 
     Visit.__emptyCollection__()
@@ -366,29 +366,10 @@ describe('/PATCH/:id visit', () => {
           })
       })
   })
-  const visit = {
-    name: 'Sonia',
-    first_surname: 'Lolo',
-    second_surname: 'Aria',
-    nickname: 'Sonya',
-    email: 'sonialolo@gmail.com:',
-    password: 'kilombo',
-    birthday: '1984-01-12',
-    studies: [
-      'journalism',
-      'psychology'
-    ],
-    professions: [
-      'teacher',
-      'psychologist'
-    ],
-    prev_volunteering: [
-      'AMI3'
-    ]
-  }
+
   it('should return an empty json collection when trying to patch a visits with wrong idVisit', (done) => {
     chai.request(app)
-      .patch('/visits/22')
+      .patch('/visits/2334')
       .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
       .send()
       .end((err, res) => {
@@ -400,10 +381,10 @@ describe('/PATCH/:id visit', () => {
 
   it('should error token json when trying to patch a visit with a non-existent userId', (done) => {
     const sheet = {
-      "name": "Amparo",
-      "first_surname": "Ribola",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Amparo',
+      first_surname: 'Ribola',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     Sheet
       .create(sheet)
@@ -432,10 +413,10 @@ describe('/PATCH/:id visit', () => {
   })
   it('should error token json when trying to patch a visit with a non-existent shetId', (done) => {
     const sheet = {
-      "name": "Amparo",
-      "first_surname": "Ribola",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Amparo',
+      first_surname: 'Ribola',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     Sheet
       .create(sheet)
@@ -445,7 +426,7 @@ describe('/PATCH/:id visit', () => {
           date: 'Wed Feb 28'
         }
         const change = {
-          sheetId: 1234 
+          sheetId: 1234
         }
         Visit
           .create(visit)
@@ -463,12 +444,6 @@ describe('/PATCH/:id visit', () => {
       })
   })
   it('should error token json when trying to patch a visit with pointing to the same sheet than another', (done) => {
-    const sheet = {
-      "name": "Amparo",
-      "first_surname": "Ribola",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
-    }
     Sheet
       .__getCollection__()
       .then((sheets) => {
@@ -485,27 +460,27 @@ describe('/PATCH/:id visit', () => {
           .create(visit)
           .then(() => {
             Visit
-            .create(visit2)
-            .then((visits) => {
-              chai.request(app)
-              .patch('/visits/' + visits[1].id)
-              .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
-              .send(change)
-              .end((err, res) => {
-                res.should.have.status(400)
-                res.body.should.be.a('object')
-                 done()
+              .create(visit2)
+              .then((visits) => {
+                chai.request(app)
+                  .patch('/visits/' + visits[1].id)
+                  .set('authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTIxMDQzMzE5fQ.u25KdsjXHaVU3G3PQgPiFy7KIWbfdIi6NyT6qjIQP3o')
+                  .send(change)
+                  .end((err, res) => {
+                    res.should.have.status(400)
+                    res.body.should.be.a('object')
+                    done()
+                  })
               })
-            })
           })
       })
   })
   it('should return a json collection when trying to patch a visit with everything OK', (done) => {
     const sheet = {
-      "name": "Amparo",
-      "first_surname": "Ribola",
-      "address": "Pueblo Joven 5 de Noviembre 43, Chiclayo",
-      "zone": "Chiclayo"
+      name: 'Amparo',
+      first_surname: 'Ribola',
+      address: 'Pueblo Joven 5 de Noviembre 43, Chiclayo',
+      zone: 'Chiclayo'
     }
     Sheet
       .create(sheet)
@@ -515,7 +490,7 @@ describe('/PATCH/:id visit', () => {
           date: 'Wed Feb 28'
         }
         const change = {
-          
+
         }
         visit.sheetId = sheets[0].id
         Visit

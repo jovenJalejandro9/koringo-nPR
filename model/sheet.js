@@ -32,9 +32,9 @@ module.exports = {
     collection.push(util.nullComplete(sheet, attrsSheet))
     return State.__getCollection__()
       .then((everyState) => {
-        const promiseEveryState = [];
+        const promiseEveryState = []
         for (let i = 0; i < collection.length; i++) {
-          promiseEveryState.push(util.getEveryStateSheet(collection[i], everyState, "sheet"));
+          promiseEveryState.push(util.getEveryStateSheet(collection[i], everyState, 'sheet'))
         }
         return Promise.all(promiseEveryState)
           .then((collSheetsEveryStates) => {
@@ -45,9 +45,9 @@ module.exports = {
   getAll: (filters) => {
     return State.__getCollection__()
       .then((everyState) => {
-        const promiseEveryState = [];
+        const promiseEveryState = []
         for (let i = 0; i < collection.length; i++) {
-          promiseEveryState.push(util.getEveryStateSheet(collection[i], everyState, "sheet"));
+          promiseEveryState.push(util.getEveryStateSheet(collection[i], everyState, 'sheet'))
         }
         return Promise.all(promiseEveryState)
           .then((collSheetsEveryStates) => {
@@ -81,9 +81,10 @@ module.exports = {
     const sheet = collection.find((ele) => {
       return ele.id === id
     })
+    if (sheet === undefined) return Promise.resolve({})
     return State.__getCollection__()
       .then((everyState) => {
-        return util.getEveryStateSheet(sheet, everyState, "sheet")
+        return util.getEveryStateSheet(sheet, everyState, 'sheet')
           .then((promiseEveryState) => {
             const auxColl = []
             auxColl.push(promiseEveryState)
@@ -93,8 +94,16 @@ module.exports = {
       })
   },
   updateById: (id, body) => {
-    return util.replace(collection, parseInt(id, 10), body)
-      .then((newcollection) => collection = newcollection)
+    const foundSheet = collection.find((sheet) => sheet.id === id)
+    if (foundSheet === undefined) return Promise.resolve(collection)
+    return util
+      .findByAttr(collection, 'id', id)
+      .then(ele => util.merge(ele, body))
+      .then(newEle => util.replace(collection, id, newEle))
+      .then((newcollection) => {
+        collection = newcollection
+        return newcollection
+      })
   },
   removeById: (id) => {
     collection = collection.filter((ele) => {

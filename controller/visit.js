@@ -7,13 +7,13 @@ const attrsVisit = ['sheetId', 'date', 'user_id', 'state']
 const attrParams = ['zone', 'help']
 
 exports.create = (req, res) => {
-  const visitData = util.pick(req.body, attrsVisit.slice(0,-3))
+  const visitData = util.pick(req.body, attrsVisit.slice(0, -3))
   Visit
     .create(visitData)
     .then((result) => res.status(201).json(result))
     .catch((err) => res.status(400).send(error[err]()))
-  }
-exports.getAll =(req, res) => {
+}
+exports.getAll = (req, res) => {
   const params = util.pick(req.query, attrParams)
   Visit
     .getAll(params)

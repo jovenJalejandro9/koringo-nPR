@@ -21,7 +21,7 @@ let idUser = collection.length
 module.exports = {
   create: (body) => {
 
-    if (body.hasOwnProperty('role') && !['normal','admin'].includes(body.role)) {
+    if (body.hasOwnProperty('role') && !['normal', 'admin'].includes(body.role)) {
       return Promise.reject('incorrectRole')
     }
     if (!util.checkFields(attrsUser.slice(0, -1), body)) {
